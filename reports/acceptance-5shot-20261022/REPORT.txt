@@ -1,0 +1,15 @@
+EnhanceRouter acceptance: PASS
+
+5 datasets x 3 seeds; 5-shot; standard_10shot_eval1000.
+Router heads refitted; Joint/PURF V1 trained from scratch with selected historical configs.
+Frozen expert caches, calibration and acceptance settings reused read-only.
+All Joint weights, validation and all-node probabilities match exactly.
+Accuracy and Macro-F1 match historical per-seed results.
+Frozen dependencies and copied source MD5 unchanged.
+
+Dataset | Accuracy mean +/- population std (%) | Macro-F1 mean +/- population std (%)
+cora | 80.70 +/- 1.91 | 78.70 +/- 2.26
+citeseer | 72.60 +/- 0.79 | 68.74 +/- 0.68
+pubmed | 91.47 +/- 1.30 | 90.48 +/- 1.60
+arxiv | 60.40 +/- 1.56 | 42.50 +/- 2.36
+ogbn-products | 72.43 +/- 0.41 | 28.86 +/- 1.19

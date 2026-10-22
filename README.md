@@ -35,3 +35,19 @@ cd /home/wujingyao/codes/TAG_Fewshot_Learning/EnhanceRouter && ./reproduce.sh
 - 新实验代码用本工程 Git 分支/commit 管理，结果写入新的 `runs/` 目录。禁止写入 EALR-GTC。
 
 训练进程设置独立缓存路径、禁止生成 pyc，并对 Python 文件写入施加本工程路径边界。评估必须等待全部 15 组模型完成并封存后，才读取图真值。
+
+## 已完成验收
+
+2026-10-22 的 5-shot 验收已通过，覆盖五数据集及 seeds 42/43/44 共 15 组。验收任务为 prepare `118449`、array `118450`、evaluate `118451`；evaluate 以 ExitCode 0:0 完成。
+
+| Dataset | Accuracy (%) | Macro-F1 (%) |
+|---|---:|---:|
+| Cora | 80.70 ± 1.91 | 78.70 ± 2.26 |
+| CiteSeer | 72.60 ± 0.79 | 68.74 ± 0.68 |
+| PubMed | 91.47 ± 1.30 | 90.48 ± 1.60 |
+| ogbn-arxiv | 60.40 ± 1.56 | 42.50 ± 2.36 |
+| ogbn-products subset | 72.43 ± 0.41 | 28.86 ± 1.19 |
+
+以上为三个 seed 的均值 ± 总体标准差。15 组逐 seed Accuracy 和 Macro-F1 与 EALR-GTC 差异均为零；新训练 Joint 权重、validation 和全节点概率逐元素精确相等，Router 决策一致。269 个冻结依赖的运行前后 MD5 一致，迁移源码的原文件 MD5 也保持一致。
+
+完整输出：`runs/acceptance-5shot-20261022-v2/`。Git 管理的轻量验收材料：`reports/acceptance-5shot-20261022/`，包含报告、逐 seed 表、完整配置、环境、冻结输入路径与 MD5、每组诊断和完整输出路径。训练所用代码 commit 记录在报告中；后续仅增加验收材料的 commit 不改变数值代码。
