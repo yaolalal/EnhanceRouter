@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "enhancerouter"
+version = "0.1.0"
+description = "Isolated Router-v10 MS Original + Joint/PURF V1"
+requires-python = ">=3.11"
+dependencies = ["torch", "numpy", "scipy", "scikit-learn", "joblib", "threadpoolctl", "torch-geometric"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,29 @@
+{
+  "method": "Router-v10-MS-Original + Joint/PURF V1",
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "shots": [
+    3,
+    5,
+    10
+  ],
+  "datasets": [
+    "cora",
+    "citeseer",
+    "pubmed",
+    "arxiv",
+    "ogbn-products"
+  ],
+  "evaluation_protocol": "standard_10shot_eval1000",
+  "selection": "historical own-validation winner; preserve per-cell configs",
+  "split_seed_equals_joint_training_seed": true,
+  "inner_joint_ensemble": false,
+  "router_internal_seeds": "retain exact selected historical configurations",
+  "standard_eval_nodes": 1000,
+  "standard_eval_order": "saved historical 10-shot Query order",
+  "standard_deviation": "population ddof=0",
+  "frozen_experts": true
+}
