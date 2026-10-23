@@ -6,7 +6,7 @@ From this project root, one command launches a fresh independent development run
 bash experiments/stage0_20261023/run.sh stage0-reproduction-$(date +%Y%m%d-%H%M%S)
 ```
 
-Uses the existing `lf` Conda environment and Slurm. Every numerical operation, including inspection and reporting, runs on Slurm. `ENHANCEROUTER_GPU_PARTITIONS` defaults to `RTX2080,RTX3090,RTX4090`; CPU work uses `cpu`. No quantization: low-memory GPUs use the same fp16 weights with CPU weight offload. Text batches checkpoint in the new run directory and request bounded requeue after90 minutes to fit2-hour scheduler windows. Do not run two writers against the same run directory.
+Uses the existing `lf` Conda environment and Slurm. Every numerical operation, including inspection and reporting, runs on Slurm. `ENHANCEROUTER_GPU_PARTITIONS` for heads defaults to `RTX2080,RTX3090,RTX4090`; CPU work uses `cpu`. Text work defaults to a single24GB GPU (`ENHANCEROUTER_TEXT_GPU_PARTITIONS=RTX3090,RTX4090`, `ENHANCEROUTER_TEXT_GRES=gpu:1`). For11GB cards set `ENHANCEROUTER_TEXT_GPU_PARTITIONS=RTX2080 ENHANCEROUTER_TEXT_GRES=gpu:2`; the same fp16 model is split over2 GPUs with no quantization or CPU model layers. Text batches checkpoint in the new run directory and request bounded requeue after90 minutes to fit2-hour scheduler windows. Do not run two writers against the same run directory.
 
 ## Historical B0
 

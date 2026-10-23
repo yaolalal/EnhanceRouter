@@ -72,7 +72,7 @@ def metadata():
       if (RUN/'environment.json').exists() else environment())
  return dict(environment=env,source=read(ROOT/'provenance/source.json'),
   git_commit=subprocess.check_output(['git','-C',str(ROOT),'rev-parse','HEAD'],text=True).strip(),
-  code={str(p.relative_to(ROOT)):digest(p) for p in HERE.glob('*.py')},slurm_job=os.environ['SLURM_JOB_ID'])
+  code={str(p.relative_to(ROOT)):digest(p) for p in sorted(set(HERE.rglob('*.py'))|set((ROOT/'src').rglob('*.py')))},slurm_job=os.environ['SLURM_JOB_ID'])
 def all_sources():return read(RUN/'SOURCE_FILES.json')
 def canonical(ds):
  idx=read(ROOT/'configs/inputs.json');c=idx['cells'][f'5/42/{ds}']

@@ -26,6 +26,12 @@ def text(ds,extra=False):
  pclean=SOURCE/f'runs/router_v7_text_inputs_20260815_v3/text_clean_replay/datasets/{ds}.pt'
  dclean=torch.load(pclean,map_location='cpu',weights_only=False);original=get_texts(dclean);del dclean
  additional[str(pclean)]=dict(md5=digest(pclean,'md5'))
+ runtime_hash=hashlib.sha256(json.dumps(dict(torch=torch.__version__,gpu=[torch.cuda.get_device_name(j) for j in range(torch.cuda.device_count())],fp16=True,batch=2 if torch.cuda.get_device_properties(0).total_memory<20*1024**3 else 4),sort_keys=True).encode()).hexdigest()[:24]
+ clean_cache=torch.full_like(frozen,float('nan'));clean_dir=RUN/f'shared/runtime-clean/{ds}/{runtime_hash}';clean_dir.mkdir(parents=True,exist_ok=True)
+ for cp in sorted(clean_dir.glob('batch-*.pt')):
+  r=load(cp);pairs=[(mapping[int(n)],j) for j,n in enumerate(r['node_ids']) if int(n) in mapping]
+  if pairs:
+   a,b=map(torch.tensor,zip(*pairs));clean_cache[a]=r['probability'][b]
  def pairs_for(nodes):return [(mapping[int(n)],j) for j,n in enumerate(nodes) if int(n) in mapping]
  def infer(texts):
   prompts=[]
@@ -69,7 +75,9 @@ def text(ds,extra=False):
    tokenizer=AutoTokenizer.from_pretrained(modelpath,local_files_only=True,use_fast=True)
    if tokenizer.pad_token_id is None:tokenizer.pad_token=tokenizer.eos_token
    tokenizer.padding_side='left';tokenizer.truncation_side='left';kwargs=dict(device_map={'':'cuda:0'})
-   if torch.cuda.get_device_properties(0).total_memory<20*1024**3:kwargs=dict(device_map='auto',max_memory={0:'7GiB','cpu':'32GiB'},offload_folder=str(ROOT/'.cache/stage0-offload'))
+   if torch.cuda.get_device_properties(0).total_memory<20*1024**3:
+    if torch.cuda.device_count()<2:raise RuntimeError('11GB GPUs require2 allocated GPUs to keep frozen fp16 model entirely on GPUs')
+    kwargs=dict(device_map='balanced',max_memory={j:'9GiB' for j in range(torch.cuda.device_count())}|{'cpu':'0GiB'})
    model=AutoModelForCausalLM.from_pretrained(modelpath,local_files_only=True,torch_dtype=torch.float16,**kwargs);model.eval()
   batch=int(os.environ.get('STAGE0_LLM_BATCH',2 if torch.cuda.get_device_properties(0).total_memory<20*1024**3 else 4))
   print('TEXT_START',ds,name,'requested',len(ids),'missing',len(needed),flush=True)
@@ -78,8 +86,12 @@ def text(ds,extra=False):
     rows=needed[start:start+batch];h,prob=infer([shifted[int(ids[j])] for j in rows]);hidden[rows]=h
     missing=~torch.isfinite(probability[rows]).all(1)
     if bool(missing.any()):
-     _,runtime_clean=infer([original[int(ids[j])] for j in rows])
-     aligned=align_text_replay(frozen_clean=frozen[rows],runtime_clean=runtime_clean,runtime_shifted=prob,changed_mask=changed[rows])
+     unknown=[j for j in rows if not bool(torch.isfinite(clean_cache[j]).all())]
+     if unknown:
+      _,runtime_clean=infer([original[int(ids[j])] for j in unknown]);clean_cache[unknown]=runtime_clean
+      clean_tag=hashlib.sha256(ids[unknown].numpy().tobytes()).hexdigest()[:24]
+      save(clean_dir/f'batch-{clean_tag}.pt',dict(node_ids=ids[unknown],probability=runtime_clean))
+     aligned=align_text_replay(frozen_clean=frozen[rows],runtime_clean=clean_cache[rows],runtime_shifted=prob,changed_mask=changed[rows])
      probability[torch.tensor(rows)[missing]]=aligned[missing]
     tag=hashlib.sha256(ids[rows].numpy().tobytes()).hexdigest()[:24]
     save(chunkdir/f'batch-{tag}.pt',dict(node_ids=ids[rows],l=hidden[rows],llm_prob=probability[rows]))
