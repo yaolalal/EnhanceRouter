@@ -51,3 +51,7 @@ cd /home/wujingyao/codes/TAG_Fewshot_Learning/EnhanceRouter && ./reproduce.sh
 以上为三个 seed 的均值 ± 总体标准差。15 组逐 seed Accuracy 和 Macro-F1 与 EALR-GTC 差异均为零；新训练 Joint 权重、validation 和全节点概率逐元素精确相等，Router 决策一致。269 个冻结依赖的运行前后 MD5 一致，迁移源码的原文件 MD5 也保持一致。
 
 完整输出：`runs/acceptance-5shot-20261022-v2/`。Git 管理的轻量验收材料：`reports/acceptance-5shot-20261022/`，包含报告、逐 seed 表、完整配置、环境、冻结输入路径与 MD5、每组诊断和完整输出路径。训练所用代码 commit 记录在报告中；后续仅增加验收材料的 commit 不改变数值代码。
+
+## Phase0 improvement-plan experiments
+
+See [the Phase0 protocol and one-command launcher](experiments/stage0_20261023/README.md). Historical45-cell replay and new75-cell development diagnostics use separate evaluation protocols. Require the final report completion seal before treating Phase0 as complete.
