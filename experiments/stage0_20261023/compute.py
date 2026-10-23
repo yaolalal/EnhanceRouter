@@ -191,6 +191,15 @@ def changed_models(original,shot,seed,ds,fraction=None,oracle=None):
    diagnostics[h]=dict(scope=scope,refit=True,parents=len(set(target['node_ids'].tolist())),rows=len(target['ids']))
  return models,diagnostics
 
+def variant_receipt(out,shot,seed,ds,variant,parameters,models=None):
+ import joblib
+ base=folder(shot,seed,ds)/'b0/config.json'
+ write(out/'config.json',dict(dataset=ds,shot=shot,seed=seed,variant=variant,parameters=parameters,
+  inherited_B0_config=str(base),inherited_B0_config_sha256=digest(base),
+  frozen='scorer family/mode/scope, raw normalization, affine, route recipe, acceptance fractions, Joint hyperparameters unless named as the measured factor',metadata=metadata()))
+ if models is not None:
+  with (out/'models.joblib').open('xb') as f:joblib.dump(models,f,compress=3)
+
 def diagnostics(index):
  setup();import torch,joblib
  from enhancerouter import router as runtime
@@ -210,7 +219,9 @@ def diagnostics(index):
   else:models,diag=changed_models(original,shot,seed,ds,fraction=fraction)
   routed,scores=route(models,shot,seed,ds)
   for b,r in scores.items():save(out/f'{b}-scores.pt',r)
-  write(out/'diagnostics.json',diag);seal(out,dict(fraction=fraction,models_frozen=True,query_truth_used=False))
+  write(out/'diagnostics.json',diag)
+  variant_receipt(out,shot,seed,ds,'d1',dict(fraction=fraction,parent_selection_seed=seed+913,unit='support parent, all six views together'),models)
+  seal(out,dict(fraction=fraction,models_frozen=True,query_truth_used=False))
  for arm in ['a','b']:
   oracle=load(folder(shot,seed,ds)/f'oracle/{arm}/disagreement.pt');selection=read(folder(shot,seed,ds)/'oracle/SELECTION.json')
   for requested in [50,200,1000]:
@@ -222,6 +233,7 @@ def diagnostics(index):
    for b,r in scores.items():save(out/f'{b}-scores.pt',r)
    write(out/'diagnostics.json',dict(heads=diag,requested_N=requested,actual_N=len(ids),oracle=True,
      extra_T_rows=len(extra['ids']),extra_P_rows=int((extra['state']!=2).sum()),fixed_eval_overlap=0))
+   variant_receipt(out,shot,seed,ds,'d2'+arm,dict(requested_N=requested,actual_N=len(ids),parents=ids.tolist(),oracle=True,bank_path=str(folder(shot,seed,ds)/f'oracle/{arm}/disagreement.pt'),bank_md5=digest(folder(shot,seed,ds)/f'oracle/{arm}/disagreement.pt','md5')),models)
    seal(out,dict(models_frozen=True,oracle=True,query_evaluation_labels_used=False))
  for variant in ['confidence_router','confidence_preference']:
   out=folder(shot,seed,ds)/f'd4/{variant}'
@@ -230,6 +242,7 @@ def diagnostics(index):
   save(out/'router.pt',routed)
   for b,r in scores.items():save(out/f'{b}-scores.pt',r)
   fixed=read(base/'config.json')['joint'];joint(shot,seed,ds,routed,out,fixed=fixed)
+  variant_receipt(out,shot,seed,ds,'d4/'+variant,dict(joint_config=fixed,counts='exact B0 per-branch accepted counts',agreement_score='sqrt(cG*cL)' if variant=='confidence_router' else 'unchanged',disagreement_score='max(cG,cL)' if variant=='confidence_router' else 'learned trust',preference='cG>=cL'))
   seal(out,dict(models_frozen=True,query_truth_used=False,matched_B0_all_query_accepted_counts=True))
  print('DIAGNOSTICS',shot,seed,ds,flush=True)
 

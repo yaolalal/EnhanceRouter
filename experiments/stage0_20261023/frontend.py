@@ -107,7 +107,9 @@ def text(ds,extra=False):
  save(dest,dict(node_ids=ids,environments=outputs))
  write(dest.with_suffix('.json'),dict(dataset=ds,environments=meta,extra=extra,source_extra=additional,
    source_probabilities='Historical sparse caches reused; missing outputs use exact original label permutation and align_text_replay with paired clean forward.',
-   runtime_gpu=torch.cuda.get_device_name(),metadata=metadata(),output_md5=digest(dest,'md5')))
+   runtime_gpu=[torch.cuda.get_device_name(j) for j in range(torch.cuda.device_count())],
+   full_config=dict(model='/data1/wujingyao-20354/wujingyao/codes/models/llama-3-8b-instruct',dtype='float16',quantized=False,batch=batch,padding_side='left',truncation_side='left',max_input_length=ref['max_input_length'],number_token_ids=ref['number_token_ids'],number_to_label_ids=ref['number_to_label_ids'],prompt_metadata=str(refpath),device_map=getattr(model,'hf_device_map',None) if model is not None else None),
+   metadata=metadata(),output_md5=digest(dest,'md5')))
 
 def heads(index):
  setup();import torch
