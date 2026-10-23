@@ -124,7 +124,7 @@ def heads(index):
  for c in range(classes):
   nodes=valid[truth[valid]==c];small.extend(nodes[torch.randperm(len(nodes),generator=gen)[:shot]].tolist())
  small=torch.tensor(sorted(small),dtype=torch.long)
- for name,vids in [('standard',valid),('small',small)]:
+ for name,vids in [('standard',valid)]:
   out=dest/name
   if (out/'HEAD_COMPLETE.json').exists():continue
   target=torch.full_like(truth,-1);target[support]=truth[support];target[vids]=truth[vids]
@@ -177,7 +177,7 @@ def banks(index):
  from scripts.router_augmentation_v8.build import build70
  from scripts.router_v10_shots_v1.views import evaluation_bank
  shot,seed,ds=CELLS[index];sp=split(shot,seed,ds);dest=folder(shot,seed,ds);cl=canonical(ds);g=graph(ds);edge=g.edge_index;n=len(cl['g'])
- for mode in ['standard','small']:
+ for mode in ['standard','small_stratified']:
   out=dest/mode
   if (out/'BANK_COMPLETE.json').exists():continue
   up=load(out/'upstream.pt');safe=load(out/'supervision.pt');ids=safe['support_ids'];state=load(out/'head.pt')

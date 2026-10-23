@@ -43,7 +43,7 @@ def calibrated(models,shot,seed,ds,small=False):
 def route(models,shot,seed,ds,small=False,variant='b0',reference=None):
  import numpy as np,torch
  from enhancerouter.router import predict_bundle,top_mask
- mode='small' if small else 'standard';base=folder(shot,seed,ds)/mode;up=load(base/'upstream.pt');n=len(up['gnn_logits'])
+ mode='small_stratified' if small else 'standard';base=folder(shot,seed,ds)/mode;up=load(base/'upstream.pt');n=len(up['gnn_logits'])
  gp=up['gnn_logits'].argmax(1);lp=up['llm_logits'].argmax(1);agreement=gp==lp
  choose=torch.ones(n,dtype=torch.bool);accepted=torch.zeros(n,dtype=torch.bool);scores=torch.zeros(n,dtype=torch.float64)
  results={}
@@ -80,7 +80,7 @@ def joint(shot,seed,ds,router,out,small=False,fixed=None):
  import torch
  from enhancerouter.adapter import prepare_arrays
  from eargtc.joint_explore.joint_purf_v10_v1 import training
- mode='small' if small else 'standard';sp=read(folder(shot,seed,ds)/mode/'split.json');cl=canonical(ds)
+ mode='small_stratified' if small else 'standard';sp=read(folder(shot,seed,ds)/mode/'split.json');cl=canonical(ds)
  f,s,p=prepare_arrays(sp,load(folder(shot,seed,ds)/mode/'upstream.pt'),dict(node_ids=torch.arange(sp['num_nodes']),embeddings=cl['g']),
    load(folder(shot,seed,ds)/mode/'supervision.pt'),router,ds)
  idx=read(ROOT/'configs/inputs.json');candidates=[];seen=set()

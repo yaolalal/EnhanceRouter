@@ -80,5 +80,5 @@ def canonical(ds):
  return dict(g=load(c['inputs']['embeddings'])['embeddings'].float(),l=load(c['inputs']['hidden'])['hidden'],llm_logits=raw['llm_logits'].float())
 def textcache(ds):return RUN/f'shared/text/{ds}.pt'
 def bank(shot,seed,ds,branch,role,small=False):
- return load(folder(shot,seed,ds)/('small' if small else 'standard')/f'{branch}_{role}.pt')
+ return load(folder(shot,seed,ds)/('small_stratified' if small else 'standard')/f'{branch}_{role}.pt')
 def config(shot,seed,ds):return read(folder(shot,seed,ds)/'b0/config.json')

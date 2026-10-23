@@ -71,6 +71,10 @@ def main():
    if variant!='d3':r.update(level1(path,shot,seed,ds,truth,budget))
    if variant in ('b0','d3','d4/confidence_router','d4/confidence_preference'):r.update(accuracy(path,ids,truth))
    if variant.startswith('d2'):r.update(read(path/'diagnostics.json'))
+   if variant in ('b0','d3'):
+    mode='small_stratified' if variant=='d3' else 'standard'
+    safe=load(folder(shot,seed,ds)/mode/'supervision.pt');r['validation_count']=len(safe['valid_ids']);r['support_count']=len(safe['support_ids'])
+    if variant=='d3':r['validation_actual_per_class']=read(folder(shot,seed,ds)/mode/'HEAD_COMPLETE.json')['actual_per_class']
    allrows.append(r)
    if variant=='b0':baseline[r['key']]=r
  comparisons={}
@@ -93,7 +97,7 @@ def main():
  for shot,oldrun in oldruns.items():
   check=read(oldrun/'evaluation/ACCEPTANCE.json');assert check['all_checks_pass'] and check['cells']==15
   historical.extend(check['per_seed'])
- write(out/'RESULTS.json',dict(protocol=read(RUN/'PROTOCOL.json'),protocol_amendment=read(RUN/'PROTOCOL_AMENDMENT_01.json'),historical_reproduction=historical,dev_per_cell=allrows,summary=summary,paired_comparisons=comparisons,
+ write(out/'RESULTS.json',dict(protocol=read(RUN/'PROTOCOL.json'),protocol_amendments=[read(RUN/f'PROTOCOL_AMENDMENT_{j:02d}.json') for j in [1,2]],historical_reproduction=historical,dev_per_cell=allrows,summary=summary,paired_comparisons=comparisons,
   historical_45_exact=True,dev_cells=75,held_out_evaluations=0,stage1_gate=comparisons['d2b/200'],source=metadata()))
  for name,data in [('dev_per_cell.csv',allrows),('summary.csv',summary),('historical_45.csv',historical)]:
   # Nested diagnostic metadata is preserved in JSON, not stringified into numeric CSV columns.
