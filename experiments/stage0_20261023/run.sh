@@ -31,5 +31,5 @@ dep=$(IFS=:; echo "${extra[*]}")
 oracle=$(sbatch --parsable -p cpu --mem=48G --array=0-74%4 -J s0-oracle --dependency=afterok:$dep -o "$logs/oracle-%A_%a.log" "$exp/job.sh" compute.py oracle-banks --index '$SLURM_ARRAY_TASK_ID')
 diag=$(sbatch --parsable -p cpu --mem=48G --array=0-74%4 -J s0-diag --dependency=afterok:$oracle -o "$logs/diag-%A_%a.log" "$exp/job.sh" compute.py diagnostics --index '$SLURM_ARRAY_TASK_ID')
 report=$(sbatch --parsable -p cpu --mem=48G -J s0-report --dependency=afterok:$diag -o "$logs/report-%j.log" "$exp/job.sh" report.py)
-printf 'prepare %s\namend %s\nheads %s\ntext %s\nbanks %s\nbaseline %s\nselection %s\nextra %s\noracle %s\ndiagnostics %s\nreport %s\n' "$prep" "$amend" "$heads" "${texts[*]}" "$banks" "$base" "$select" "${extra[*]}" "$oracle" "$diag" "$report" > "$ENHANCEROUTER_STAGE0_RUN/jobs.txt"
+printf 'prepare %s\namend %s\nsmall %s\nheads %s\ntext %s\nbanks %s\nbaseline %s\nselection %s\nextra %s\noracle %s\ndiagnostics %s\nreport %s\n' "$prep" "$amend" "$small" "$heads" "${texts[*]}" "$banks" "$base" "$select" "${extra[*]}" "$oracle" "$diag" "$report" > "$ENHANCEROUTER_STAGE0_RUN/jobs.txt"
 cat "$ENHANCEROUTER_STAGE0_RUN/jobs.txt"
