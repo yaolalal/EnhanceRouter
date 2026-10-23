@@ -62,7 +62,10 @@ def main():
   if ds not in labelcache:labelcache[ds]=graph(ds).y.reshape(-1).long()
   truth=labelcache[ds];base=folder(shot,seed,ds)/'b0';cfg=read(base/'config.json');ids=torch.tensor(read(RUN/'EVALUATION_IDS.json')[ds])
   up=load(folder(shot,seed,ds)/'standard/upstream.pt');same=up['gnn_logits'][ids].argmax(1)==up['llm_logits'][ids].argmax(1)
-  budget={b:int(np.ceil(float(cfg['router'][b]['policy']['fraction'])*int((same if b=='agreement' else ~same).sum()))) for b in ['agreement','disagreement']}
+  budget={}
+  for branch in ['agreement','disagreement']:
+   deployed=load(base/f'{branch}-scores.pt');on_test=torch.isin(deployed['ids'],ids)
+   budget[branch]=int(deployed['accepted'][on_test].sum())
   for variant in variants:
    path=folder(shot,seed,ds)/variant;r=dict(key=key(shot,seed,ds),dataset=ds,shot=shot,seed=seed,variant=variant)
    if variant!='d3':r.update(level1(path,shot,seed,ds,truth,budget))
