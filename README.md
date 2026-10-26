@@ -1,3 +1,5 @@
+> 2026-10-26 当前协议：seeds42–46，无预留种子；各seed沿用自己的10-shot Query eval1000，三个shot同节点同顺序。活动代码与进度见 experiments/stage0_20261026/README.md 和 runs/stage0-20261026-v2/。旧阶段0的142–146及跨seed共享新名单协议已停用。历史大表复现保持原样。
+
 # EnhanceRouter
 
 独立的 **Router-v10-MS-Original + Joint/PURF V1** 工程。代码和所有新结果归本工程管理；EALR-GTC 仅作为只读冻结输入来源。

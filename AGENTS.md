@@ -1,21 +1,28 @@
-# EnhanceRouter boundaries
+# EnhanceRouter 工作约束
 
-- EALR-GTC is read-only. Do not modify its code, artifacts, Git metadata, logs or caches.
-- Copy runtime code here; never import or execute Python modules from EALR-GTC.
-- Keep all new code, experiment outputs, checkpoints, logs and caches inside this project.
-- All numerical work, including tensor inspection and tests, must run through Slurm.
-- Seeds are 42, 43, 44. Keep the selected Original Router recipes and Joint/PURF V1 configs as the baseline.
-- For each dataset and seed, reuse the exact saved historical 10-shot Query 1,000-node list in its original order for every shot. Never resample.
-- Record frozen input paths and MD5, full configs, source provenance, environment and EnhanceRouter commit for every run.
-- EALR-GTC has no Git repository at migration time. Record its unavailable commit ID as null with source hashes; never invent a commit or initialize Git there.
-- New experiments use a new run directory. Do not overwrite completed runs.
+## 当前用户要求（2026-10-26，优先于方案中的冲突内容）
 
-## Stage 0 protocol update, explicitly requested 2026-10-23
+1. 对每个数据集和 seed，从历史 **10-shot Query** 中固定抽取 1,000 个节点，3／5／10-shot 共用这些节点及顺序。已存在的历史 1,000 节点名单必须逐项、逐序沿用，不得从交集重新抽样，也不得强制不同 seed 共用同一名单。若 seed 45/46 没有历史名单，必须先明确来源并登记；不得冒充历史名单。
+   - 用户再次确认：跨 seed 的评估名单可以不同；只要求每份名单与同一 seed 各 shot 的 train、valid 均无重叠。跨 seed 的交集单独披露，不据此重抽名单。
+2. 实验仅使用 seeds **42、43、44、45、46**，用于开发、诊断、决策和最终比较。暂不预留额外种子，不使用 142–146 或 1042–1046。
+3. 严格遵循用户提供的《EnhanceRouter 改进实验方案》；冲突以本次用户指令为准。阶段 0 的 D1–D4 和判定记录完成前不得推进阶段 1；各阶段按单因素、Level 1 → Level 2 门槛逐步接纳。
 
-- Follow the user supplied EnhanceRouter improvement plan, including its page2 annotation.
-- Historical replay keeps seeds42/43/44 and original per-seed lists above.
-- New development experiments reserve one label-blind list of1000 nodes per dataset before support/validation generation, shared in exact order across ALL shots and seeds.
-- Dev seeds142-146; final confirmation seeds42/43/44/45/46, as explicitly updated by the user on2026-10-26. Original historical replay42/43/44 remains separate.
-- Stage0 preregistration lives in runs/stage0-20261023-v1/PROTOCOL.json, written before fitting.
-- Oracle labels are allowed ONLY in isolated D2 analyses on selected parents excluding all fixed evaluation nodes.
-- No stage1 work until phase0 diagnoses and gate are complete.
+## 工程与实验边界
+
+- EALR-GTC 只读：不修改其代码、产物、Git 元数据、日志或缓存；仅使用本工程内复制的运行代码，不从 EALR-GTC 导入或执行模块。
+- 所有新增代码、输出、检查点、日志和缓存均保存在本工程内。
+- 所有数值工作（包括 tensor 检查、测试和报告）必须通过 Slurm。
+- 历史大表 45 格复现保持原样、单独归档；不把历史 seeds 42–44 的范围误当成新实验仅可用 3 个 seed。
+- 保留 Original Router 与 Joint/PURF V1 的历史逐 split 选择流程。不得把原 5-shot agreement/disagreement 流程替换为统一三折校准；3/10-shot 的参考接受比例必须继承对应基线值，不能写死为 15%。
+- 受控对照冻结 B0 的 scorer 族、特征模式、训练 scope、完整已拟合输入变换（标准化、筛列、投影、rank 等）、输出归一化、仿射、路由规则、接受比例和下游超参；只重新拟合被测变量允许变动的参数。不得用恢复输出 center/scale 冒充冻结输入变换。
+- D1 按 support 原始节点子采样，保留/丢弃节点全部六视图；固定专家、原型、源数据及其他已选配置。
+- Oracle 真标签仅在隔离的 D2 分析训练和冻结后的评估中使用；D2 排除固定评估节点，不能用于方法超参选择。
+- 每次运行记录输入路径及 MD5/SHA256、完整配置、来源、环境、工程 commit 和未提交代码哈希；EALR-GTC 无 Git commit 时记 null，不编造、不初始化。
+- 新协议使用新运行目录。不得覆盖已完成运行，不把未通过审查的旧结果作为有效新基线。提交任务不等于完成；需实际完成日志、检查与封存结果。
+
+## 当前有效记录
+
+- 活跃实验代码：experiments/stage0_20261026；当前运行：runs/stage0-20261026-v2。
+- 用户已授权按原始 CUDA 划分流程补建 seeds45/46 的3/10-shot，并先验证与其历史5-shot嵌套。SPLIT_AUDIT.json 已通过全部75格检查：42–44原划分逐项重放一致，45/46历史5-shot逐项一致。
+- EVALUATION_IDS.json 以 seed/dataset 为键，共25份；不得回退到仅dataset为键的新交集名单。
+- stage0_20261023 和新目录中保留的未列入 README 有效入口的辅助脚本，仅作旧协议留档；不得使用旧142–146入口提交新实验。
