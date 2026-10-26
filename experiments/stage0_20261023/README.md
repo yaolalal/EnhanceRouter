@@ -41,3 +41,11 @@ Final artifacts: `RUN/report/RESULTS.json`, per-cell and dataset CSVs, `stage0_d
 All vendor code is copied under this project; `source-code.json` records original EALR-GTC paths and MD5/SHA256. Original files are read-only. Every new output/cache is protected by the EnhanceRouter write guard. `SOURCE_FILES.json` records frozen data/model paths, MD5/SHA256/size/mtime; extra prompt/input paths are in text receipts and rechecked at final reporting. Full environment is captured once per run, referenced by hash from every cell. EALR-GTC has no Git repository: its commit is recorded as null with hashes; no invented commit. Record this project's commit and code hashes for every run.
 
 The existing `submit_remaining.sh` and `submit_text_v2.sh` document the initial run's submission history; use `run.sh` for a fresh replay. Initial sparse-cache failures and their logs are retained for audit.
+
+## Recovery on2026-10-26
+
+The original text array118790 failed for all5 datasets before model inference: its `--gres=gpu:2` request was recorded as2 GPUs, but the actual allocation contained1. The cluster's explicit `--gpus-per-node=2 --ntasks=1` interface was verified to allocate and expose2 GPUs. The generic launcher now uses that interface. This changes resource allocation only; model weights, fp16 precision, seeds and experimental definitions are unchanged.
+
+GPU allocation check119521 and actual frozen-model clean/perturbed forward check119522 passed. The six-view construction check119526 passed on all5 datasets using historical support nodes outside the fixed evaluation set. These are correctness checks, not reported development performance. The copied script namespace is now explicit so the copied helper modules resolve inside EnhanceRouter.
+
+Recovery submission: `recover_20261026.sh`, with `runs/stage0-20261023-v1/RECOVERY-20261026.json` recording the replacement text and extra-text arrays. Old failure logs are retained. `status.py` reports these replacement job IDs. Do not infer experimental success from these checks or from submitted downstream jobs; final75-cell results still require `report/COMPLETE.json`.
