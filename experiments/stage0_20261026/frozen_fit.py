@@ -28,6 +28,24 @@ def refit(w,head,banks,target):
  if scope=='source' or (w['engine']=='v6' and m['fitted'].get('kind')=='baseline'):
   return old,dict(refit=False,reason='source-only or fixed rule',input_hash=input_hash(old))
  fixed=input_state(old)
+ fitcfg=deepcopy(cfg);fixed_gamma=None
+ sk=m.get('estimator',{}).get('estimator')
+ if cfg.get('gamma')=='scale' and hasattr(sk,'_gamma'):
+  fixed_gamma=float(sk._gamma);fitcfg['gamma']=fixed_gamma
+ # Native one-class smoothing is (positives+.5)/(N+1); N=0 gives .5.
+ # Do not reuse trained B0 weights when a target-only head loses every row.
+ if scope=='target':
+  target_bank=banks[target]
+  eligible=(np.asarray(target_bank['state'])!=2) if head=='preference' else np.ones(len(target_bank['ids']),bool)
+  if not int(eligible.sum()):
+   new=deepcopy(old)
+   if w['engine'] in ('v7','expanded','tune'):
+    new['model']['estimator']=dict(kind='constant',logit=0.)
+   elif w['engine']=='v6' and head=='agreement':
+    f=new['model']['fitted'];new['model']['fitted']=dict(kind='constant',family=f['family'],config=deepcopy(f['config']),probability=.5,**({'transform':deepcopy(f['transform'])} if 'transform' in f else {}))
+   else:raise NotImplementedError('Empty-target fallback needs reviewed estimator schema')
+   assert input_hash(new)==input_hash(old)
+   return new,dict(refit=True,scope=scope,parents=0,rows=0,no_eligible_training_rows=True,native_empty_prior=.5,raw_logit=0.,input_before=input_hash(old),input_after=input_hash(new),fitted_transform_recomputed=False,output_normalization_frozen=True)
  with ExitStack() as stack:
   import torch
   from threadpoolctl import threadpool_limits
@@ -57,16 +75,20 @@ def refit(w,head,banks,target):
      return deepcopy(transform),x
     stack.enter_context(patch.object(models,'_fit_linear_transform',new=frozen_linear))
   else:raise NotImplementedError(('unreviewed frozen-fit schema',w['engine'],head,cfg))
-  new=deepcopy(old);new['model']=engine(w['engine']).fit_candidate(deepcopy(cfg),head,banks,target)
+  new=deepcopy(old);new['model']=engine(w['engine']).fit_candidate(deepcopy(fitcfg),head,banks,target)
  f=new['model'].get('fitted',new['model'])
  # A native single-class estimator may omit its unused transform; retain it for audit.
  if 'transform' in fixed and 'transform' not in f:f['transform']=deepcopy(fixed['transform'])
  for k in ('center','scale'):
   if k in m:new['model'][k]=deepcopy(m[k])
  assert input_hash(new)==input_hash(old),'Input transform changed during controlled refit'
+ if fixed_gamma is not None:
+  fitted_estimator=new['model'].get('estimator',{}).get('estimator')
+  if fitted_estimator is not None:assert float(fitted_estimator._gamma)==fixed_gamma
+  new['model']['controlled_effective_gamma']=fixed_gamma
  audit=new['model'].get('fit_audit',new['model'].get('training_audit',{}))
  audit['controlled_input_transform']=dict(source='frozen B0',sha1=input_hash(old),fit_calls_replaced=True)
  for k in ('transform_fit_sample_ids','transform_fit_parent_ids','transform_fit_rows','feature_fit_ids','transform_fit_ids'):
   if k in audit:audit[k]=deepcopy(m.get('fit_audit',m.get('training_audit',{})).get(k))
  return new,dict(refit=True,scope=scope,input_before=input_hash(old),input_after=input_hash(new),
-  fitted_transform_recomputed=False,output_normalization_frozen=True)
+  fitted_transform_recomputed=False,output_normalization_frozen=True,frozen_effective_gamma=fixed_gamma)

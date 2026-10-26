@@ -4,12 +4,19 @@ import argparse
 def fitted_models(shot,seed,ds,small=False):
  import joblib,numpy as np
  from enhancerouter.router import engine,predict_bundle
- idx=read(ROOT/'configs/inputs.json');template=idx['cells'][f'{shot}/{seed if seed<=44 else 42}/{ds}'];models={}
+ idx=read(ROOT/'configs/inputs.json');history=read(RUN/'HISTORICAL_INPUTS_V2.json');template=history['cells'].get(key(shot,seed,ds),history['cells'][f'5/{seed}/{ds}']);models={}
  for branch in ['agreement','disagreement']:
   old=joblib.load(template['branches'][branch]['bundle']);new=copy.deepcopy(old)
   training={d:bank(shot,seed,d,branch,'train',small) for d in DS}
+  missing=[]
   for h,w in new.get('models',{}).items():
-   w['model']=engine(w['engine']).fit_candidate(copy.deepcopy(w['model']['config']),h,training,ds)
+   cfg=w['model']['config'];scope=cfg.get('scope','transfer' if cfg.get('kind')=='neural' else 'target')
+   use=[ds] if scope=='target' else [d for d in DS if d!=ds] if scope=='source' else list(DS)
+   count=sum(int((training[d]['state']!=2).sum()) if h=='preference' else len(training[d]['ids']) for d in use)
+   if not count:missing.append(h);continue
+   w['model']=engine(w['engine']).fit_candidate(copy.deepcopy(cfg),h,training,ds)
+  if missing:
+   new=dict(branch=branch,dataset=ds,models={},unavailable=missing,comparison_fraction=float(old['policy']['fraction']),policy=dict(fraction=0.,reject_all=True,reason='native_no_eligible_training_rows'))
   models[branch]=new
  return models
 
@@ -21,6 +28,7 @@ def calibrated(models,shot,seed,ds,small=False):
  from native_calibration import calibrate
  anchor=read(SOURCE/'runs/router_v10_multiseed_20260912_v1/ANCHOR.json')
  for branch,m in models.items():
+  if m.get('unavailable'):continue
   b=bank(shot,seed,ds,branch,'validation',small);ids=np.asarray(b['ids'])
   training={d:bank(shot,seed,d,branch,'train',small) for d in DS};norms={}
   if branch=='disagreement':
@@ -28,7 +36,7 @@ def calibrated(models,shot,seed,ds,small=False):
     if w['engine']=='v6':
      def fit(bs):return dict(engine=w['engine'],model=engine(w['engine']).fit_candidate(copy.deepcopy(w['model']['config']),h,bs,ds))
      r=fit_affine_grouped(training,ds,h,fit,predict);norms[h]={k:float(r['affine'][k]) for k in ('slope','bias')}
-     if shot!=5:w['gold_normalization']=copy.deepcopy(norms[h])
+     if shot!=5 or m.get('tuning_schema')=='crossfit_v1':w['gold_normalization']=copy.deepcopy(norms[h])
     else:
      model=w['model'];norms[h]=dict(slope=1/model['scale'],bias=-model['center']/model['scale'])
   reference_fraction=float(m['policy']['fraction'])
@@ -51,6 +59,7 @@ def calibrated(models,shot,seed,ds,small=False):
     m.update(tuning_schema='crossfit_v1',calibration=cal,route_recipe=recipe)
     chosen=policy.select_acceptance(oof['score'],oof['route']==state,ids,fold)
    m['policy']=chosen;m['inherited_reference_fraction']=reference_fraction
+  if m['policy']['fraction']==0:m['comparison_fraction']=reference_fraction
   models[branch]=m
  return models
 
@@ -58,7 +67,7 @@ def calibrated(models,shot,seed,ds,small=False):
 def route(models,shot,seed,ds,small=False,variant='b0',reference=None):
  import numpy as np,torch
  from enhancerouter.router import predict_bundle,top_mask
- mode='small_stratified' if small else 'standard';base=folder(shot,seed,ds)/mode;up=upstream_bank(shot,seed,ds,small);n=len(up['gnn_logits'])
+ mode='small_native' if small else standard_mode(shot,seed);base=folder(shot,seed,ds)/mode;up=upstream_bank(shot,seed,ds,small);n=len(up['gnn_logits'])
  gp=up['gnn_logits'].argmax(1);lp=up['llm_logits'].argmax(1);agreement=gp==lp
  choose=torch.ones(n,dtype=torch.bool);accepted=torch.zeros(n,dtype=torch.bool);scores=torch.zeros(n,dtype=torch.float64)
  results={}
@@ -95,33 +104,34 @@ def joint(shot,seed,ds,router,out,small=False,fixed=None):
  import torch
  from enhancerouter.adapter import prepare_arrays
  from eargtc.joint_explore.joint_purf_v10_v1 import training
- mode='small_stratified' if small else 'standard';sp=read(folder(shot,seed,ds)/mode/'split.json');cl=canonical(ds)
+ mode='small_native' if small else standard_mode(shot,seed);sp=read(folder(shot,seed,ds)/mode/'split.json');cl=canonical(ds)
  f,s,p=prepare_arrays(sp,upstream_bank(shot,seed,ds,small),dict(node_ids=torch.arange(sp['num_nodes']),embeddings=cl['g']),
    supervision_bank(shot,seed,ds,small),router,ds)
- idx=read(ROOT/'configs/inputs.json');candidates=[];seen=set()
- for oldseed in [42,43,44]:
-  cfg=idx['cells'][f'{shot}/{oldseed}/{ds}']['config'];tag=json.dumps(cfg,sort_keys=True)
-  if tag not in seen:candidates.append(cfg);seen.add(tag)
- if fixed is not None:candidates=[fixed]
- results=[];best=None
- for i,cfg in enumerate(candidates):
-  member=training.train(f,s,p,cl['l'],cfg,seed);v=member['checkpoints']['accuracy'];rank=(-v['accuracy'],v['nll'],i)
-  results.append(dict(config=cfg,validation=v))
-  if best is None or rank<best[0]:best=(rank,cfg,member)
- _,cfg,member=best;model=training.make_model(f,cl['l'],cfg);model.load_state_dict(member['states']['accuracy'])
+ if fixed is None:
+  from native_joint_search import run
+  cfg,member,selection=run(f,s,p,cl['l'],seed,out)
+ else:
+  cfg=fixed;member=training.train(f,s,p,cl['l'],cfg,seed)
+  selection=dict(config=cfg,candidates=[dict(config=cfg,validation=member['checkpoints']['accuracy'])],validation=member['checkpoints']['accuracy'],query_truth_used=False,search='fixed B0 configuration')
+ model=training.make_model(f,cl['l'],cfg);model.load_state_dict(member['states']['accuracy'])
  pred=training.predict(model,f,cl['l'],f['node_ids'])
+ torch.testing.assert_close(pred[s['selection_ids']],member['validation_probability'],rtol=0,atol=2e-6)
  save(out/'checkpoint.pt',member);save(out/'predictions.pt',dict(probability=pred,node_ids=f['node_ids']))
- write(out/'joint-selection.json',dict(config=cfg,candidates=results,validation=member['checkpoints']['accuracy'],query_truth_used=False))
+ write(out/'joint-selection.json',selection)
  return cfg
 
 def baseline(index,only=None):
  setup();import joblib
+ assert read(ROOT/'reports/audit-20261026/NATIVE_SEARCH_TEST.json')['all_checks_pass']
+ assert read(RUN/'NATIVE_BASELINE_SEARCH_REGISTRATION.json')['all_checks_pass']
  from enhancerouter.cli import router_recipe
  shot,seed,ds=CELLS[index]
  for small in ([False] if only=='b0' else [True] if only=='d3' else [False,True]):
   out=folder(shot,seed,ds)/('d3' if small else 'b0')
   if (out/'COMPLETE.json').exists():continue
   models=calibrated(fitted_models(shot,seed,ds,small),shot,seed,ds,small)
+  from native_router_search import select
+  models=select(models,shot,seed,ds,small,out)
   router,results=route(models,shot,seed,ds,small)
   save(out/'router.pt',router)
   for b,r in results.items():save(out/f'{b}-scores.pt',r)
@@ -161,7 +171,7 @@ def oracle_banks(index):
  from eargtc.models.gnn import MLPHead
  from frontend import view_rows
  shot,seed,ds=CELLS[index];sp=split(shot,seed,ds);cl=canonical(ds);up=upstream_bank(shot,seed,ds)
- graphdata=graph(ds);truth=graphdata.y.reshape(-1).long();edge=graphdata.edge_index
+ graphdata=graph(ds);truth=graphdata.y.reshape(-1).long();edge=canonical_edge(ds)
  state=head_state(shot,seed,ds);head=MLPHead(128,state['net.0.weight'].shape[0],state['net.3.weight'].shape[0],dropout=0.);head.load_state_dict(state);head.eval()
  selection=read(folder(shot,seed,ds)/'oracle/SELECTION.json');test=set(evaluation_ids(seed,ds))
  for arm in ['a','b']:
@@ -213,7 +223,7 @@ def d1(index):
  from enhancerouter import router as runtime
  shot,seed,ds=CELLS[index];base=folder(shot,seed,ds)/'b0';original=joblib.load(base/'models.joblib')
  for fraction in [.25,.5,.75,1.]:
-  out=folder(shot,seed,ds)/f'd1/{fraction}'
+  out=variant_folder(shot,seed,ds,f'd1/{fraction}')
   if (out/'COMPLETE.json').exists():continue
   if fraction==1.:models,diag=original,dict(reference=True)
   else:models,diag=changed_models(original,shot,seed,ds,fraction=fraction)

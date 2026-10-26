@@ -5,7 +5,7 @@ def main(index):
  setup();import torch
  from tune_gcn_ssl_1000_eval import train_head,HeadTrial
  from eargtc.utils import set_seed
- shot,seed,ds=CELLS[index];sp=split(shot,seed,ds);out=folder(shot,seed,ds)/'small_stratified'
+ shot,seed,ds=CELLS[index];sp=split(shot,seed,ds);out=folder(shot,seed,ds)/'small_native'
  if (out/'HEAD_COMPLETE.json').exists():return
  data=graph(ds);truth=data.y.reshape(-1).long();cl=canonical(ds);classes=cl['llm_logits'].shape[1];reserved=set(evaluation_ids(seed,ds))
  gen=torch.Generator().manual_seed(seed+1181);chosen=[];counts=[]
@@ -16,13 +16,13 @@ def main(index):
  assert not(set(valid.tolist())&(set(support.tolist())|reserved))
  target=torch.full_like(truth,-1);target[support]=truth[support];target[valid]=truth[valid]
  trial=HeadTrial(**read(SOURCE/f'runs/gcn_ssl_v2_selected_20260623_v1/{ds}/mlp_metrics.json')['trial'])
- set_seed(seed)
+ set_seed(gnn_training_seed(ds))
  device=torch.device('cuda:0');assert torch.cuda.is_available()
  logits,stats,artifact=train_head(cl['g'].to(device),target.to(device),support.to(device),valid.to(device),classes,trial)
  save(out/'upstream.pt',dict(gnn_logits=logits.cpu().float(),llm_logits=cl['llm_logits']))
  save(out/'head.pt',{k:v.cpu() for k,v in artifact['state_dict'].items()})
  save(out/'supervision.pt',dict(support_ids=support,support_targets=truth[support],valid_ids=valid,valid_targets=truth[valid]))
- write(out/'head-training.json',dict(trial=trial.__dict__,stats=stats,history=artifact['history'],training_seed=seed,valid_ids=valid.tolist(),actual_per_class=counts,requested_per_class=shot,validation_sampling_seed=seed+1181,query_truth_used=False,metadata=metadata()))
+ write(out/'head-training.json',dict(trial=trial.__dict__,stats=stats,history=artifact['history'],training_seed=gnn_training_seed(ds),split_seed=seed,valid_ids=valid.tolist(),actual_per_class=counts,requested_per_class=shot,validation_sampling_seed=seed+1181,query_truth_used=False,metadata=metadata()))
  write(out/'HEAD_COMPLETE.json',dict(all_checks_pass=True,dataset=ds,shot=shot,seed=seed,validation_count=len(valid),actual_per_class=counts,underfilled_classes=[j for j,n in enumerate(counts) if n<shot],fixed_eval_overlap=0))
  print('D3_STRATIFIED_HEAD',shot,seed,ds,'validation',len(valid),'underfilled',sum(n<shot for n in counts),stats,flush=True)
 

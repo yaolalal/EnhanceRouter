@@ -17,7 +17,7 @@ def level1(path,shot,seed,ds,truth,budget):
   selected=np.where(route==0,gp[ids].numpy(),lp[ids].numpy()) if branch=='disagreement' else gp[ids].numpy()
   correct=selected==truth[ids].numpy();precision=float(correct[order[:k]].mean()) if k else None
   out['D-Prec@B0' if branch=='disagreement' else 'A-Prec@B0']=precision
-  out[branch+'_count']=len(ids);out[branch+'_accepted']=k
+  out[branch+'_count']=len(ids);out[branch+'_accepted']=k;out[branch+'_deployed_eval_accepted']=int(data['accepted'][mask].sum())
   if branch=='disagreement':
    t=(gp[ids]==truth[ids])|(lp[ids]==truth[ids]);p=(gp[ids]==truth[ids]);ts=data['trust'][mask].numpy();ps=data['preference'][mask].numpy()
    out['trust_auroc']=auc(t.numpy(),ts);out['preference_auroc']=auc(p[t].numpy(),ps[t.numpy()])
@@ -53,12 +53,16 @@ def compare(rows,reference,metric):
  return result
 
 def main():
- setup();import numpy as np,torch,csv,statistics
+ setup();import numpy as np,torch,csv,statistics,joblib
+ registration=metric_budget_registration()
+ assert read(RUN/'NATIVE_BASELINE_SEARCH_REGISTRATION.json')['all_checks_pass']
  out=RUN/'report';out.mkdir()
  for shot,seed,ds in CELLS:
   f=folder(shot,seed,ds)
   for name in ['b0','d3',*[f'd1/{x}' for x in [.25,.5,.75,1.]],*[f'd2{arm}/{n}' for arm in ['a','b'] for n in [50,200,1000]],'d4/confidence_router','d4/confidence_preference']:
-   assert (f/name/'COMPLETE.json').exists(),(shot,seed,ds,name)
+   path=variant_folder(shot,seed,ds,name)
+   assert (path/'COMPLETE.json').exists(),(shot,seed,ds,name)
+   for rel,h in read(path/'COMPLETE.json')['files'].items():assert digest(path/rel)==h,(path,rel)
  write(RUN/'ALL_STAGE0_MODELS_FROZEN.json',dict(cells=75,models_frozen=True,held_out_evaluations=0,created_at=time.time()))
  allrows=[];baseline={};labelcache={}
  variants=['b0','d3',*[f'd1/{x}' for x in [.25,.5,.75,1.]],*[f'd2{arm}/{n}' for arm in ['a','b'] for n in [50,200,1000]],'d4/confidence_router','d4/confidence_preference']
@@ -69,14 +73,14 @@ def main():
   budget={}
   for branch in ['agreement','disagreement']:
    deployed=load(base/f'{branch}-scores.pt');on_test=torch.isin(deployed['ids'],ids)
-   budget[branch]=int(deployed['accepted'][on_test].sum())
+   budget[branch]=level1_budget(deployed,ids,joblib.load(base/'models.joblib')[branch]['policy']['fraction'],registration['mode'])['primary']
   for variant in variants:
-   path=folder(shot,seed,ds)/variant;r=dict(key=key(shot,seed,ds),dataset=ds,shot=shot,seed=seed,variant=variant)
+   path=variant_folder(shot,seed,ds,variant);r=dict(key=key(shot,seed,ds),dataset=ds,shot=shot,seed=seed,variant=variant)
    if variant!='d3':r.update(level1(path,shot,seed,ds,truth,budget))
    if variant in ('b0','d3','d4/confidence_router','d4/confidence_preference'):r.update(accuracy(path,ids,truth))
    if variant.startswith('d2'):r.update(read(path/'diagnostics.json'))
    if variant in ('b0','d3'):
-    mode='small_stratified' if variant=='d3' else 'standard'
+    mode='small_native' if variant=='d3' else standard_mode(shot,seed)
     safe=supervision_bank(shot,seed,ds,variant=='d3');r['validation_count']=len(safe['valid_ids']);r['support_count']=len(safe['support_ids'])
     if variant=='d3':r['validation_actual_per_class']=read(folder(shot,seed,ds)/mode/'HEAD_COMPLETE.json')['actual_per_class']
    allrows.append(r)
@@ -101,7 +105,7 @@ def main():
  for shot,oldrun in oldruns.items():
   check=read(oldrun/'evaluation/ACCEPTANCE.json');assert check['all_checks_pass'] and check['cells']==15
   historical.extend(check['per_seed'])
- write(out/'RESULTS.json',dict(protocol=registered_protocol(),protocol_amendments=[read(RUN/p) for p in ['EXACT_FIVE_SHOT_REGISTRATION.json']],historical_reproduction=historical,dev_per_cell=allrows,summary=summary,paired_comparisons=comparisons,
+ write(out/'RESULTS.json',dict(protocol=registered_protocol(),metric_budget=registration,protocol_amendments=[read(RUN/p) for p in ['EXACT_FIVE_SHOT_REGISTRATION.json']],historical_reproduction=historical,dev_per_cell=allrows,summary=summary,paired_comparisons=comparisons,
   historical_45_exact=True,dev_cells=75,held_out_evaluations=0,stage1_gate=comparisons['d2b/200'],source=metadata()))
  for name,data in [('dev_per_cell.csv',allrows),('summary.csv',summary),('historical_45.csv',historical)]:
   # Nested diagnostic metadata is preserved in JSON, not stringified into numeric CSV columns.
@@ -130,14 +134,14 @@ def main():
  text=['EnhanceRouter Stage 0 report','', 'Historical B0: 45/45 exact reproduction PASS.',
   'New development protocol: 75 cells, seeds42-46 only; no held-out/reserved seeds.',
   'Evaluation: per-seed ordered1000 node IDs per dataset, shared acrossshots, disjoint from every new support/validation.',
-  'B0 new-dev recipe/calibration and candidate catalog are documented in PROTOCOL.json; historical score replay remains separate.','']
+  'New20 B0 and D3 use registered native scorer/Joint search; see NATIVE_BASELINE_SEARCH_REGISTRATION.json. Historical55 exact score replay remains separate.','']
  for v in variants[1:]:
   r=comparisons[v]
   if r['mean'] is None:
    text.append(f'{v}: no defined paired primary metrics; gate not passed');continue
   text.append(f"{v}: paired mean delta={r['mean']:.4f} pp; 95%CI=[{r['lower']:.4f},{r['upper']:.4f}], n={r['n']}; L1_gate={r['L1_gate']}")
   text.append('  Dataset deltas: '+', '.join(f"{d} {z['mean']:+.4f}pp" for d,z in r['per_dataset'].items()))
- gate=comparisons['d2b/200']['L1_gate'];text+=['',f'Stage1 decision: {"proceed" if gate else "skip under preregistered gate"}; primary diagnostic is D2b requested N=200.',
+ primary=comparisons['d2b/200'];gate=primary['L1_gate'];decision='proceed' if gate else 'inconclusive: undefined paired primary cells' if primary['n']!=75 else 'skip under preregistered gate';text+=['',f'Stage1 decision: {decision}; primary diagnostic is D2b requested N=200.',
   'Oracle outcomes are analyses, not an admissible deployed method. Requested N and actual N are reported separately.',
   'D1 freezes experts/prototypes; it measures router training-data amount, not total expert label budget.',
   'All frozen-source MD5 checks passed. All new writes were guarded to EnhanceRouter; every registered frozen input/code MD5 is unchanged.']

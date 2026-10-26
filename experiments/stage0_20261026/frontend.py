@@ -13,7 +13,8 @@ def text(ds,extra=False):
  request=read(RUN/f'shared/{"text-extra-request" if extra else "text-request-v2"}-{ds}.json')
  ids=torch.tensor(request['node_ids'],dtype=torch.long);mapping={int(i):j for j,i in enumerate(ids)}
  dest=RUN/f'shared/{"text-extra" if extra else "text"}/{ds}.pt'
- if dest.exists():return
+ if dest.exists():
+  receipt=read(dest.with_suffix('.json'));assert digest(dest,'md5')==receipt['output_md5'];return
  clean=canonical(ds);frozen=clean['llm_logits'][ids].softmax(1);model=None;tokenizer=None;outputs={};meta={};started=time.monotonic()
  cache_roots=[SOURCE/'runs/router_v10_multiseed_data_20260912_v1/shared/text',SOURCE/'runs/router_v10_shots_v1_20260914/shared/text'] if not extra else []
  base=load(textcache(ds)) if extra else None
@@ -26,7 +27,7 @@ def text(ds,extra=False):
  pclean=SOURCE/f'runs/router_v7_text_inputs_20260815_v3/text_clean_replay/datasets/{ds}.pt'
  dclean=torch.load(pclean,map_location='cpu',weights_only=False);original=get_texts(dclean);del dclean
  additional[str(pclean)]=dict(md5=digest(pclean,'md5'))
- runtime_hash=hashlib.sha256(json.dumps(dict(torch=torch.__version__,gpu=[torch.cuda.get_device_name(j) for j in range(torch.cuda.device_count())],fp16=True,batch=2 if torch.cuda.is_available() and torch.cuda.get_device_properties(0).total_memory<20*1024**3 else 4),sort_keys=True).encode()).hexdigest()[:24]
+ runtime_hash=hashlib.sha256(json.dumps(dict(torch=torch.__version__,gpu=[torch.cuda.get_device_name(j) for j in range(torch.cuda.device_count())],fp16=True,batch=int(os.environ.get('STAGE0_LLM_BATCH',1))),sort_keys=True).encode()).hexdigest()[:24]
  clean_cache=torch.full_like(frozen,float('nan'));clean_dir=RUN/f'shared/runtime-clean/{ds}/{runtime_hash}';clean_dir.mkdir(parents=True,exist_ok=True)
  for cp in sorted(clean_dir.glob('batch-*.pt')):
   r=load(cp);pairs=[(mapping[int(n)],j) for j,n in enumerate(r['node_ids']) if int(n) in mapping]
@@ -88,7 +89,7 @@ def text(ds,extra=False):
     if torch.cuda.device_count()<2:raise RuntimeError('11GB GPUs require2 allocated GPUs to keep frozen fp16 model entirely on GPUs')
     kwargs=dict(device_map='balanced',max_memory={j:'9GiB' for j in range(torch.cuda.device_count())}|{'cpu':'0GiB'})
    model=AutoModelForCausalLM.from_pretrained(modelpath,local_files_only=True,torch_dtype=torch.float16,**kwargs);model.eval()
-  batch=int(os.environ.get('STAGE0_LLM_BATCH',2 if torch.cuda.is_available() and torch.cuda.get_device_properties(0).total_memory<20*1024**3 else 4))
+  batch=int(os.environ.get('STAGE0_LLM_BATCH',1))
   print('TEXT_START',ds,name,'requested',len(ids),'missing',len(needed),flush=True)
   with torch.inference_mode():
    for start in range(0,len(needed),batch):
@@ -133,16 +134,16 @@ def heads(index):
  for c in range(classes):
   nodes=valid[truth[valid]==c];small.extend(nodes[torch.randperm(len(nodes),generator=gen)[:shot]].tolist())
  small=torch.tensor(sorted(small),dtype=torch.long)
- for name,vids in [('standard',valid)]:
+ for name,vids in [('standard_native',valid)]:
   out=dest/name
   if (out/'HEAD_COMPLETE.json').exists():continue
   target=torch.full_like(truth,-1);target[support]=truth[support];target[vids]=truth[vids]
-  set_seed(seed)
+  set_seed(gnn_training_seed(ds))
   logits,stats,artifact=train_head(emb,target.to(device),support.to(device),vids.to(device),classes,trial)
   save(out/'upstream.pt',dict(gnn_logits=logits.cpu().float(),llm_logits=cl['llm_logits']))
   save(out/'head.pt',{k:v.cpu() for k,v in artifact['state_dict'].items()})
   save(out/'supervision.pt',dict(support_ids=support,support_targets=truth[support],valid_ids=vids,valid_targets=truth[vids]))
-  write(out/'head-training.json',dict(trial=trial.__dict__,stats=stats,history=artifact['history'],training_seed=seed,valid_ids=vids.tolist(),query_truth_used=False))
+  write(out/'head-training.json',dict(trial=trial.__dict__,stats=stats,history=artifact['history'],training_seed=gnn_training_seed(ds),split_seed=seed,valid_ids=vids.tolist(),query_truth_used=False))
   write(out/'HEAD_COMPLETE.json',dict(all_checks_pass=True,shot=shot,seed=seed,dataset=ds,validation_count=len(vids),metadata=metadata()))
   print('HEAD',shot,seed,ds,name,stats,flush=True)
 
@@ -182,11 +183,12 @@ def view_rows(ds,ids,targets,sp,up,head,cl,edge,*,extra=False):
 
 def banks(index):
  setup();import torch
+ assert read(RUN/'PREREQUISITES_FROZEN.json')['all_checks_pass']
  from eargtc.models.gnn import MLPHead
  from scripts.router_augmentation_v8.build import build70
  from scripts.router_v10_shots_v1.views import evaluation_bank
- shot,seed,ds=CELLS[index];sp=split(shot,seed,ds);dest=folder(shot,seed,ds);cl=canonical(ds);g=graph(ds);edge=g.edge_index;n=len(cl['g'])
- for mode in (['small_stratified'] if seed<=44 or shot==5 else ['standard','small_stratified']):
+ shot,seed,ds=CELLS[index];sp=split(shot,seed,ds);dest=folder(shot,seed,ds);cl=canonical(ds);g=graph(ds);edge=canonical_edge(ds);n=len(cl['g'])
+ for mode in (['small_native'] if seed<=44 or shot==5 else ['standard_native','small_native']):
   out=dest/mode
   if (out/'BANK_COMPLETE.json').exists():continue
   up=load(out/'upstream.pt');safe=load(out/'supervision.pt');ids=safe['support_ids'];state=load(out/'head.pt')
@@ -202,7 +204,7 @@ def banks(index):
    for b in ['agreement','disagreement']:
     value=evaluation_bank(ds,rows,tab,cl['g'][rows],cl['l'][rows],pg.argmax(1)[rows],pl.argmax(1)[rows],branch=b,targets=safe['valid_targets'] if role=='validation' else None)
     save(out/f'{b}_{role}.pt',value)
-  write(out/'BANK_COMPLETE.json',dict(dataset=ds,shot=shot,seed=seed,metadata=metadata(),query_truth_used=False))
+  write(out/'BANK_COMPLETE.json',dict(dataset=ds,shot=shot,seed=seed,metadata=metadata(),query_truth_used=False,files={p.name:dict(md5=digest(p,'md5'),sha256=digest(p)) for p in out.glob('*.pt')}))
   print('BANK',shot,seed,ds,mode,flush=True)
 
 if __name__=='__main__':

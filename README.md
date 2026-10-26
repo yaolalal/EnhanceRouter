@@ -57,3 +57,5 @@ cd /home/wujingyao/codes/TAG_Fewshot_Learning/EnhanceRouter && ./reproduce.sh
 ## Phase0 improvement-plan experiments
 
 See [the Phase0 protocol and one-command launcher](experiments/stage0_20261023/README.md). Historical45-cell replay and new75-cell development diagnostics use separate evaluation protocols. Require the final report completion seal before treating Phase0 as complete.
+
+当前阶段0进度和协议：experiments/stage0_20261026/README.md。完整原生搜索登记为NATIVE_BASELINE_SEARCH_REGISTRATION.json；D1实际SVC gamma固定登记为EFFECTIVE_GAMMA_REGISTRATION.json。旧有限候选近似不作为最终B0/D3定义。Stage0报告需全部75格模型封存并确定主指标预算口径后才可发布。

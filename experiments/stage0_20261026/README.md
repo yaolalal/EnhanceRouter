@@ -17,3 +17,15 @@ D1按support原始节点取25/50/75/100%，同节点六视图整体保留。D2�
 文本缓存按节点ID复用冻结专家输出，不使用标签；仅缺失节点需要原fp16 LLM前向。资源不足时增加Slurm主存/GPU配额，不改模型或精度。所有输出、缓存及运行代码留在EnhanceRouter；EALR-GTC只读，绝不从其目录导入代码。
 
 任务提交不代表完成。阶段0只有在report/COMPLETE.json存在且all_checks_pass=true时才算完成。D2b N=200的L1门槛决定是否推进阶段1；没有结果不得臆造接受结论。
+
+原生前端修订：必须从历史PROVENANCE读取按数据集固定的GNN model_seed（47/46/43/46/46），不能误用split seed。新标准前端在standard_native，D3在small_native；旧20+75套前端仅留档，均不纳入方法结果。5-shot seed42的head_state来自原selected mlp_head.pt，其余历史头从gnn_head.pt读取；55个引用已登记，5个anchor的预测与缓存核对通过。上下文clean edge_index来自历史processed graph.pt，保持原无向图语义。
+
+有效批量入口还包括 submit_remaining.sh、verify_prerequisites.py、test_native_views.py、register_head_sources.py。verify_prerequisites必须通过并封存55个B0、55个D1和95个原生前端，后续作业依赖它和缺失LLM文本缓存的成功完成。Slurm已清除的完成作业ID不能直接重用为新依赖；检查产物的前置条件必须继续保留。
+
+受控重训还冻结 B0 SVC 的实际 `_gamma`，防止 `gamma=scale` 随子集方差变化。历史 55 格中受影响的 10 格 D1 改用 `d1_frozen_v2`；旧结果保留，未受影响的 45 格继续使用已封存结果。新增 20 格 D1 也使用此版本。强化前置核验重查原 2180 个文件和这 10 格全部四个比例，作业登记见 GAMMA_JOB_GRAPH_AMENDMENT.json。
+
+完整搜索修订：native_router_catalog.py / native_router_search.py 复制原30初始+最多20细化、OOF shortlist/pair与采纳规则；native_joint_search.py 复制Joint/PURF V1四阶段候选构造与逐split验证集排序。新增20格从同seed历史5-shot原生配方开始重新拟合，不沿用seed42配方。D3重跑完整候选选择；原专家训练超参固定，检查点由缩小后的validation选择。NATIVE_BASELINE_SEARCH_REGISTRATION.json（测试通过后生成）取代 BASELINE_RECIPE_REGISTRATION.json 的有限候选近似。历史55个B0不重选。搜索需要先通过真实Cora3/42端到端测试及登记作业，生产作业120191、120193已加强依赖；没有通过前不会执行。
+
+当前完整入口还包括 native_router_catalog.py、native_router_search.py、native_joint_search.py、test_native_search.py、register_native_search.py、verify_gamma_prerequisites.py、verify_sealed_inputs.py、status.py；status.py 通过Slurm生成真实产物计数快照，run.sh status只读展示当前队列与修订登记。
+
+报告发布：verify_report_inputs.py 在D1/Stage0全部对应模型封存后逐文件重新验哈希，当前前置任务120213/120214均不读取评估标签。主指标口径待用户明确后，通过register_metric_budget.py登记，再运行submit_reports.sh；该入口即使遇到Slurm清理旧完成ID，也会重新提交完整前置核验，不跳过条件。没有METRIC_BUDGET_REGISTRATION.json不得提交评估，不以等待时间视为同意。

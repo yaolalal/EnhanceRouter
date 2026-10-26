@@ -26,3 +26,10 @@
 - 用户已授权按原始 CUDA 划分流程补建 seeds45/46 的3/10-shot，并先验证与其历史5-shot嵌套。SPLIT_AUDIT.json 已通过全部75格检查：42–44原划分逐项重放一致，45/46历史5-shot逐项一致。
 - EVALUATION_IDS.json 以 seed/dataset 为键，共25份；不得回退到仅dataset为键的新交集名单。
 - stage0_20261023 和新目录中保留的未列入 README 有效入口的辅助脚本，仅作旧协议留档；不得使用旧142–146入口提交新实验。
+
+- 五个实验 seeds 指 support/split 的42–46；不要将它们替换到原基线内部所有 RNG。历史 GNN 头的固定 model_seed 为 Cora47、Citeseer46、PubMed43、Arxiv46、Products46，必须原样保留；Joint训练seed继续使用该split seed。参见 GNN_TRAINING_SEEDS.json 和 HEAD_REFERENCES.json。
+- 新生成的标准前端只使用 standard_native（45/46的3/10-shot）；D3只使用 small_native。standard 中这20格旧生成输出和 small_stratified 全部作为被排除的历史记录保留，禁止纳入结果。
+- 批量训练前必须通过 verify_prerequisites.py，校验55个历史B0、55个历史D1和95套原生前端并冻结其哈希；不能仅移除或替换已过期的Slurm作业ID来跳过前置条件。
+
+- 受控重训同时固定 B0 SVC 的实际 `_gamma`，不能让 `gamma=scale` 随新样本方差重算；D1通过 variant_folder 选择已审定结果，十个历史受影响组合与新增20格使用 d1_frozen_v2，旧结果保留。
+- 新增20格 B0 使用同 seed 的历史5-shot作为原生 incumbent 配方来源，重拟合全部权重/输入统计，再执行原生30初始候选、最多20细化及 OOF 分支选择；不得仅转移seed42选中配方。D3也重跑完整scorer候选选择和Joint/PURF V1四阶段自适应搜索。55个历史B0保持逐格原样。新登记 NATIVE_BASELINE_SEARCH_REGISTRATION.json 优先于旧有限候选登记。

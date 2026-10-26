@@ -3,14 +3,15 @@ from common import *
 from report import level1,compare
 
 def main():
- setup();import torch,csv
+ setup();import torch,csv,joblib
+ registration=metric_budget_registration()
  out=RUN/'d1-report'
  assert not out.exists(),out
  variants=['b0',*[f'd1/{f}' for f in [.25,.5,.75,1.]]]
  seals={}
  for shot,seed,ds in CELLS:
   for variant in variants:
-   p=folder(shot,seed,ds)/variant/'COMPLETE.json'
+   p=variant_folder(shot,seed,ds,variant)/'COMPLETE.json'
    assert p.is_file(),p
    # Authenticate each sealed artifact before exposing any evaluation outcomes.
    data=read(p)
@@ -29,10 +30,10 @@ def main():
   if ds not in truths:truths[ds]=graph(ds).y.reshape(-1).long()
   ids=torch.tensor(evaluation_ids(seed,ds));base=folder(shot,seed,ds)/'b0';budget={}
   for branch in ['agreement','disagreement']:
-   b=load(base/f'{branch}-scores.pt');budget[branch]=int(b['accepted'][torch.isin(b['ids'],ids)].sum())
+   b=load(base/f'{branch}-scores.pt');budget[branch]=level1_budget(b,ids,joblib.load(base/'models.joblib')[branch]['policy']['fraction'],registration['mode'])['primary']
   for variant in variants:
    row=dict(key=key(shot,seed,ds),dataset=ds,shot=shot,seed=seed,variant=variant)
-   row.update(level1(folder(shot,seed,ds)/variant,shot,seed,ds,truths[ds],budget));rows.append(row)
+   row.update(level1(variant_folder(shot,seed,ds,variant),shot,seed,ds,truths[ds],budget));rows.append(row)
    if variant=='b0':baseline[row['key']]=row
  comparisons={v:{m:compare([r for r in rows if r['variant']==v],baseline,m) for m in ['D-Prec@B0','A-Prec@B0','trust_auroc','preference_auroc']} for v in variants[1:]}
  summary=[]
@@ -44,14 +45,14 @@ def main():
     values=[r[m] for r in group if r[m] is not None];row[m]=sum(values)/len(values) if values else None;row[m+'_defined']=len(values)
    summary.append(row)
  write(out/'RESULTS.json',dict(dev_cells=75,held_out_evaluations=0,scope='D1 router supervision only; not end-to-end label-budget accuracy',
-  protocol=registered_protocol(),amendments=[read(RUN/'EXACT_FIVE_SHOT_REGISTRATION.json')],
+  protocol=registered_protocol(),metric_budget=registration,amendments=[read(RUN/'EXACT_FIVE_SHOT_REGISTRATION.json')],
   dev_per_cell=rows,summary=summary,paired_comparisons=comparisons,source=metadata()))
  for name,data in [('per_cell.csv',rows),('summary.csv',summary)]:
   with (out/name).open('x',newline='') as f:
    writer=csv.DictWriter(f,fieldnames=sorted({k for r in data for k in r}));writer.writeheader();writer.writerows(data)
  lines=['D1: router training sample learning curve','75 paired cells; seeds42-46 only, no reserved seeds.',
   'All expert outputs, prototypes, source data, selected recipes, calibration and acceptance fractions stay fixed.',
-  'Primary measure: D-Prec at actual B0 accepted count on the shared evaluation1000.','']
+  'Primary measure: D-Prec at the user-registered B0 budget on each seed fixed evaluation1000.','']
  for v in variants[1:]:
   r=comparisons[v]['D-Prec@B0']
   if r['mean'] is None:lines.append(f'{v}: no defined paired values');continue
