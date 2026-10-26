@@ -97,7 +97,7 @@ def main():
  for shot,oldrun in oldruns.items():
   check=read(oldrun/'evaluation/ACCEPTANCE.json');assert check['all_checks_pass'] and check['cells']==15
   historical.extend(check['per_seed'])
- write(out/'RESULTS.json',dict(protocol=read(RUN/'PROTOCOL.json'),protocol_amendments=[read(RUN/f'PROTOCOL_AMENDMENT_{j:02d}.json') for j in [1,2]],historical_reproduction=historical,dev_per_cell=allrows,summary=summary,paired_comparisons=comparisons,
+ write(out/'RESULTS.json',dict(protocol=registered_protocol(),protocol_amendments=[read(RUN/f'PROTOCOL_AMENDMENT_{j:02d}.json') for j in [1,2]],historical_reproduction=historical,dev_per_cell=allrows,summary=summary,paired_comparisons=comparisons,
   historical_45_exact=True,dev_cells=75,held_out_evaluations=0,stage1_gate=comparisons['d2b/200'],source=metadata()))
  for name,data in [('dev_per_cell.csv',allrows),('summary.csv',summary),('historical_45.csv',historical)]:
   # Nested diagnostic metadata is preserved in JSON, not stringified into numeric CSV columns.
@@ -124,7 +124,7 @@ def main():
  assert not changed,changed
  write(out/'SOURCE_MD5_RECHECK.json',dict(checked_files=len(checked),unchanged=True,files={p:entry['md5'] for p,entry in checked.items()}))
  text=['EnhanceRouter Stage 0 report','', 'Historical B0: 45/45 exact reproduction PASS.',
-  'New development protocol: 75 cells, dev seeds142-146; held-out1042-1046 reserved and not evaluated.',
+  'New development protocol: 75 cells, dev seeds142-146; final confirmation seeds42-46 reserved; not evaluated under the new confirmation protocol.',
   'Evaluation: same1000 node IDs per dataset for all shots and all seeds, disjoint from every new support/validation.',
   'B0 new-dev recipe/calibration and candidate catalog are documented in PROTOCOL.json; historical score replay remains separate.','']
  for v in variants[1:]:

@@ -9,7 +9,7 @@ sys.path[:0]=[str(VENDOR),str(VENDOR/'extra_experiments'),str(ROOT/'src'),str(HE
 DS=('cora','citeseer','pubmed','arxiv','ogbn-products')
 SHOTS=(3,5,10)
 DEV=(142,143,144,145,146)
-HELDOUT=(1042,1043,1044,1045,1046)
+HELDOUT=(42,43,44,45,46)
 CELLS=list(itertools.product(SHOTS,DEV,DS))
 _run=Path(os.environ.get('ENHANCEROUTER_STAGE0_RUN','runs/stage0-20261023-v1'))
 RUN=(_run if _run.is_absolute() else ROOT/_run).resolve()
@@ -82,3 +82,14 @@ def textcache(ds):return RUN/f'shared/text/{ds}.pt'
 def bank(shot,seed,ds,branch,role,small=False):
  return load(folder(shot,seed,ds)/('small_stratified' if small else 'standard')/f'{branch}_{role}.pt')
 def config(shot,seed,ds):return read(folder(shot,seed,ds)/'b0/config.json')
+
+
+def registered_protocol():
+ """Preserve the original run snapshot and expose the user's seed override explicitly."""
+ original=read(RUN/'PROTOCOL.json')
+ registration=read(HERE/'final_confirmation.json')
+ result=copy.deepcopy(original)
+ result['held_out_seeds']=registration['final_confirmation_seeds']
+ result['final_confirmation_registration']=registration
+ result['original_protocol_sha256']=digest(RUN/'PROTOCOL.json')
+ return result
