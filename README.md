@@ -1,4 +1,6 @@
-> 2026-10-27：[FairRouter/B0与D1–D4完整结果](reports/all-results-20261027/README.md)。全部75组及1350份封存结果通过核验，包含逐组指标、配置、诊断和eval1000逐节点输出。旧冻结D1与新数值D1独立保存。L1预算仍搁置，阶段0接纳未决，阶段1未开始。
+> 评估范围更正：[全量Query Router指标](reports/full-query-20261027/REPORT.md)。Router的P@k、Trust/Pref AUROC使用完整Query；D2剔除新增训练节点并匹配B0名单。最终分类仍使用固定eval1000。旧报告的eval1000 Router指标已被更正报告取代，旧封存文件保留供审计。
+
+> 2026-10-27：[FairRouter/B0与D1–D4完整训练结果](reports/all-results-20261027/README.md)。全部75组及1350份封存结果通过核验，包含配置、诊断和eval1000逐节点输出。旧冻结D1与新数值D1独立保存。L1预算仍搁置，阶段0接纳未决，阶段1未开始。
 
 > 2026-10-26 当前协议：seeds42–46，无预留种子；各seed沿用自己的10-shot Query eval1000，三个shot同节点同顺序。活动代码与进度见 experiments/stage0_20261026/README.md 和 runs/stage0-20261026-v2/。旧阶段0的142–146及跨seed共享新名单协议已停用。历史大表复现保持原样。
 

@@ -1,5 +1,7 @@
 # FairRouter / B0 与 D1–D4：完整实验结果
 
+**Router指标评估范围已更正：请使用[全量Query报告](../full-query-20261027/REPORT.md)。本目录旧REPORT.md、RESULTS.json、per_cell.csv中的Router指标是在eval1000抽样上计算的，已由更正报告取代，原文件不覆盖以保留审计记录。最终分类的eval1000结果保持有效且数值未改。Release中的逐节点Router CSV是eval1000抽样视图，不是全量Query指标的计算全集。**
+
 全部75组配置：5个数据集 × 3/5/10-shot × split seeds42–46。每个dataset/seed固定eval1000，跨shot共用节点及顺序。
 
 ## 审阅入口
