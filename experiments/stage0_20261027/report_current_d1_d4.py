@@ -133,7 +133,7 @@ for r in summaries:
   lines.append('| '+r['dataset']+' | '+r['variant'].split('/')[1]+' | '+str(r['cells'])+' | '+' | '.join(line_metrics(r))+' |')
 lines+=['','## New numeric D1: partial, common completed cohort only','','Only cells with all four completed fractions enter these curves; partial individual outputs remain in per_cell.csv. These are not the complete75-cell results.','','| Dataset | Fraction | n | Trust AUROC | Preference AUROC | P@1% | P@5% | P@20% | P@100% | Accuracy |','|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|']
 for r in numeric:lines.append('| '+r['dataset']+' | '+str(r['fraction'])+' | '+str(r['cells'])+' | '+' | '.join(line_metrics(r)+[fmt(r['metrics']['accuracy']['mean'])])+' |')
-lines+=['','## D2: completed cells only','','Actual N is the number of available added parent nodes; requested N is an upper bound. Overall comparisons must use matched B0 cells because Products is incomplete.','','| Dataset | Variant | n | Actual N range | Trust AUROC | Preference AUROC | P@1% | P@5% | P@20% | P@100% |','|---|---|---:|---|---:|---:|---:|---:|---:|---:|']
+lines+=['','## D2: completed cells only','','Actual N is the number of available added parent nodes; requested N is an upper bound. Overall comparisons use the matched B0 cells recorded below; completion counts show whether all75 cells are available.','','| Dataset | Variant | n | Actual N range | Trust AUROC | Preference AUROC | P@1% | P@5% | P@20% | P@100% |','|---|---|---:|---|---:|---:|---:|---:|---:|---:|']
 for r in summaries:
  if r['variant'].startswith('d2'):
   if r['variant']=='d2a/50':lines.append('| '+r['dataset']+' | matched B0 | '+str(r['cells'])+' | — | '+' | '.join(line_metrics(dict(metrics=r['matched_B0'])))+' |')
