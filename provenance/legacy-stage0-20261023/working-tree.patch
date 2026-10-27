@@ -1,0 +1,61 @@
+diff --git a/experiments/stage0_20261023/compute.py b/experiments/stage0_20261023/compute.py
+index 9ad802a..2d8695f 100644
+--- a/experiments/stage0_20261023/compute.py
++++ b/experiments/stage0_20261023/compute.py
+@@ -200,7 +200,7 @@ def variant_receipt(out,shot,seed,ds,variant,parameters,models=None):
+  if models is not None:
+   with (out/'models.joblib').open('xb') as f:joblib.dump(models,f,compress=3)
+ 
+-def diagnostics(index):
++def d1(index):
+  setup();import torch,joblib
+  from enhancerouter import router as runtime
+  # A preregistered zero-logit fallback only for genuinely empty fitting inputs.
+@@ -222,6 +222,13 @@ def diagnostics(index):
+   write(out/'diagnostics.json',diag)
+   variant_receipt(out,shot,seed,ds,'d1',dict(fraction=fraction,parent_selection_seed=seed+913,unit='support parent, all six views together'),models)
+   seal(out,dict(fraction=fraction,models_frozen=True,query_truth_used=False))
++ print('D1',shot,seed,ds,flush=True)
++
++
++def diagnostics(index):
++ d1(index)
++ import torch,joblib
++ shot,seed,ds=CELLS[index];base=folder(shot,seed,ds)/'b0';original=joblib.load(base/'models.joblib')
+  for arm in ['a','b']:
+   oracle=load(folder(shot,seed,ds)/f'oracle/{arm}/disagreement.pt');selection=read(folder(shot,seed,ds)/'oracle/SELECTION.json')
+   for requested in [50,200,1000]:
+@@ -247,8 +254,9 @@ def diagnostics(index):
+  print('DIAGNOSTICS',shot,seed,ds,flush=True)
+ 
+ if __name__=='__main__':
+- p=argparse.ArgumentParser();p.add_argument('stage',choices=['baseline','oracle-select','oracle-banks','diagnostics']);p.add_argument('--index',type=lambda v:int(os.environ['SLURM_ARRAY_TASK_ID']) if v.startswith('$') else int(v));a=p.parse_args()
++ p=argparse.ArgumentParser();p.add_argument('stage',choices=['baseline','oracle-select','oracle-banks','diagnostics','d1']);p.add_argument('--index',type=lambda v:int(os.environ['SLURM_ARRAY_TASK_ID']) if v.startswith('$') else int(v));a=p.parse_args()
+  if a.stage=='baseline':baseline(a.index)
++ elif a.stage=='d1':d1(a.index)
+  elif a.stage=='oracle-select':oracle_requests()
+  elif a.stage=='oracle-banks':oracle_banks(a.index)
+  else:diagnostics(a.index)
+diff --git a/experiments/stage0_20261023/run.sh b/experiments/stage0_20261023/run.sh
+index b3f3538..017e81e 100644
+--- a/experiments/stage0_20261023/run.sh
++++ b/experiments/stage0_20261023/run.sh
+@@ -22,6 +22,8 @@ done
+ dep=$(IFS=:; echo "${texts[*]}")
+ banks=$(sbatch --parsable -p cpu --mem=48G --array=0-74%4 -J s0-banks --dependency=afterok:$heads:$small:$dep -o "$logs/banks-%A_%a.log" "$exp/job.sh" frontend.py banks --index '$SLURM_ARRAY_TASK_ID')
+ base=$(sbatch --parsable -p cpu --mem=48G --array=0-74%4 -J s0-baseline --dependency=afterok:$banks -o "$logs/baseline-%A_%a.log" "$exp/job.sh" compute.py baseline --index '$SLURM_ARRAY_TASK_ID')
++d1=$(sbatch --parsable -p cpu --mem=48G --array=0-74%4 -J s0-d1 --dependency=afterok:$base -o "$logs/d1-%A_%a.log" "$exp/job.sh" compute.py d1 --index '$SLURM_ARRAY_TASK_ID')
++d1report=$(sbatch --parsable -p cpu --mem=48G -J s0-d1-report --dependency=afterok:$d1 -o "$logs/d1-report-%j.log" "$exp/job.sh" d1_report.py)
+ select=$(sbatch --parsable -p cpu --mem=24G -J s0-oraclesel --dependency=afterok:$base -o "$logs/select-%j.log" "$exp/job.sh" compute.py oracle-select)
+ extra=()
+ for ds in cora citeseer pubmed arxiv ogbn-products; do
+@@ -29,7 +31,7 @@ for ds in cora citeseer pubmed arxiv ogbn-products; do
+ done
+ dep=$(IFS=:; echo "${extra[*]}")
+ oracle=$(sbatch --parsable -p cpu --mem=48G --array=0-74%4 -J s0-oracle --dependency=afterok:$dep -o "$logs/oracle-%A_%a.log" "$exp/job.sh" compute.py oracle-banks --index '$SLURM_ARRAY_TASK_ID')
+-diag=$(sbatch --parsable -p cpu --mem=48G --array=0-74%4 -J s0-diag --dependency=afterok:$oracle -o "$logs/diag-%A_%a.log" "$exp/job.sh" compute.py diagnostics --index '$SLURM_ARRAY_TASK_ID')
++diag=$(sbatch --parsable -p cpu --mem=48G --array=0-74%4 -J s0-diag --dependency=afterok:$oracle:$d1 -o "$logs/diag-%A_%a.log" "$exp/job.sh" compute.py diagnostics --index '$SLURM_ARRAY_TASK_ID')
+ report=$(sbatch --parsable -p cpu --mem=48G -J s0-report --dependency=afterok:$diag -o "$logs/report-%j.log" "$exp/job.sh" report.py)
+-printf 'prepare %s\namend %s\nsmall %s\nheads %s\ntext %s\nbanks %s\nbaseline %s\nselection %s\nextra %s\noracle %s\ndiagnostics %s\nreport %s\n' "$prep" "$amend" "$small" "$heads" "${texts[*]}" "$banks" "$base" "$select" "${extra[*]}" "$oracle" "$diag" "$report" > "$ENHANCEROUTER_STAGE0_RUN/jobs.txt"
++printf 'prepare %s\namend %s\nsmall %s\nheads %s\ntext %s\nbanks %s\nbaseline %s\nselection %s\nextra %s\noracle %s\nd1 %s\nd1-report %s\ndiagnostics %s\nreport %s\n' "$prep" "$amend" "$small" "$heads" "${texts[*]}" "$banks" "$base" "$select" "${extra[*]}" "$oracle" "$d1" "$d1report" "$diag" "$report" > "$ENHANCEROUTER_STAGE0_RUN/jobs.txt"
+ cat "$ENHANCEROUTER_STAGE0_RUN/jobs.txt"

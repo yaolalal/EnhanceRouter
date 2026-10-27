@@ -1,0 +1,41 @@
+# FairRouter 基线与可审阅证据
+
+FairRouter 是本工程对 `Router-v10-MS-Original + Joint/PURF V1` 的统一名称，实验中的 B0 指这套基线。`src/fairrouter` 直接导出已核验的实现，不复制新数学模块。
+
+## 已复现的大表
+
+历史三种 shot、seeds42/43/44，共45格已经逐节点预测、Joint权重及指标核对一致。结果见 `reports/fairrouter-baseline/REPORT.md`；`RESULTS.json` 保存逐格数据，`COMPLETE.json` 保存原报告及配置哈希。
+
+原运行目录：
+
+- `runs/stage0-b0-historical-3shot-20261023`
+- `runs/acceptance-5shot-20261022-v2`
+- `runs/stage0-b0-historical-10shot-20261023`
+
+入口 `python -m fairrouter` 与 `python -m enhancerouter.cli` 指向完全同一个 `main`。prepare/cell/evaluate 均须通过Slurm，保存历史逐格配置。完整复现是从已选配方重训并核对，不是重新发明一遍历史搜索；尤其不得把5-shot不同分支统一替换为3/10-shot的三折校准。
+
+## 新的五seed诊断
+
+只使用42–46；每个dataset/seed自己的有序eval1000跨3/5/10-shot共用，与同seed所有support/valid无交集。历史55格B0（含5-shot45/46）精确重放；缺少的20格另行执行同seed配方重拟合及原生验证集搜索，二者来源分开登记。
+
+输入特征、冻结专家、图/文本增强、训练矩阵、标签边界、候选族、超参数选择、校准和下游模型应逐项审查，不能用同名函数或提交成功代替数值等价性证据。source-only等头在D1可能根本不使用目标样本，结果不随D1比例变化属于训练组合本身。
+
+2026-10-27用户允许D1按验证集重新调超参数和拟合校准。既有四档D1是“输入变换、超参和校准全部冻结”的独立版本；不得改名为“已重新调参版”。特征模式/训练组合/模型族是否允许重新选择，须以本轮用户答复登记，不能默认为数值超参数。
+
+## 原始历史选择的限制
+
+5-shot历史 `CHOICES.json` 标记 `selection_uses_query_truth=true`，这一既有来源事实已保留在 `EXACT_FIVE_SHOT_REGISTRATION.json`。准确复现这些历史结果不等于证明历史选择没有偏差。新的搜索只允许使用各自validation；结论须披露继承历史配方的事实。
+
+## 已发现的D3边界
+
+小验证集 Citeseer/3-shot/seed43 共18个一致节点、0个分歧节点。原Joint验证集二分函数不接受空分支。`experiments/stage0_20261027/d3_recovery.py` 对空分支返回空划分，对单节点分支只放入selection；不重复标签，不从Query补节点。其他74格的划分与原函数逐项完全相同，测试证据在运行目录 `D3_SMALL_VALIDATION_EXTENSION_TEST.json`。此扩展仅处理D3边界，不修改冻结的旧代码。
+
+## 审阅入口
+
+- 历史数学内核：`src/enhancerouter/`、`src/eargtc/`，来源登记 `provenance/copied-sources.json`。
+- 原专家/增强与新五seed入口：`experiments/stage0_20261026/frontend.py`、`small_stratified.py`、`vendor/`。
+- 原生候选选择：`native_router_search.py`、`native_router_catalog.py`、`native_joint_search.py`。
+- 既有冻结D1与D2：`compute.py`、`frozen_fit.py`；不代表2026-10-27新增的可重调参口径已执行。
+- D3失败恢复：`experiments/stage0_20261027/`。
+
+二进制权重、数据集、缓存与完整运行日志仍保存在服务器；GitHub审阅包含代码、文本结果、配置和哈希登记，不包含登录凭据。
