@@ -1,3 +1,5 @@
+> 2026-10-27 审阅入口：[FairRouter=B0及实验边界](docs/FAIRROUTER_BASELINE.md)、[新D1代码](experiments/stage0_20261027/d1_numeric.py)、[已通过的10份试运行及运行快照](reports/runtime-recovery-20261027/)、[75格划分核查及25份固定eval1000](reports/protocol-audit-20261027/)、[已完成D4结果](reports/completed-diagnostics-20261027/REPORT.md)。新D1完整75组已放行，正在运行；D2前3数据集45组完成，D3最新快照65/75封存，D4两种对照均75/75完成。L1预算仍搁置，阶段1未开始。旧stage0_20261023入口只作历史留档。
+
 > 2026-10-26 当前协议：seeds42–46，无预留种子；各seed沿用自己的10-shot Query eval1000，三个shot同节点同顺序。活动代码与进度见 experiments/stage0_20261026/README.md 和 runs/stage0-20261026-v2/。旧阶段0的142–146及跨seed共享新名单协议已停用。历史大表复现保持原样。
 
 # EnhanceRouter
