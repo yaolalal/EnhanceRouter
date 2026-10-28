@@ -1,3 +1,5 @@
+> 2026-10-28：[B0 residual实现、45组alpha/beta曲线及Arxiv 25%重调参D1分析](reports/residual-audit-20261028/README.md)。冻结checkpoint拆分pR单独、移除pR与eval1000标签改变区，区分B0和D1 100%内部对照。
+
 > 评估范围更正：[全量Query Router指标](reports/full-query-20261027/REPORT.md)。Router的P@k、Trust/Pref AUROC使用完整Query；D2剔除新增训练节点并匹配B0名单。最终分类仍使用固定eval1000。旧报告的eval1000 Router指标已被更正报告取代，旧封存文件保留供审计。
 
 > 2026-10-27：[FairRouter/B0与D1–D4完整训练结果](reports/all-results-20261027/README.md)。全部75组及1350份封存结果通过核验，包含配置、诊断和eval1000逐节点输出。旧冻结D1与新数值D1独立保存。L1预算仍搁置，阶段0接纳未决，阶段1未开始。

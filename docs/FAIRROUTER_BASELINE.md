@@ -2,6 +2,8 @@
 
 FairRouter 是本工程对 `Router-v10-MS-Original + Joint/PURF V1` 的统一名称，实验中的 B0 指这套基线。`src/fairrouter` 直接导出已核验的实现，不复制新数学模块。
 
+分类residual实现位于 `src/eargtc/joint_explore/joint_purf_v10_v1/model.py` 的 `UnifiedRepair`，由同目录 `training.py` 训练，历史复现调用见 `src/enhancerouter/cli.py:119`。实际概率为 `(alpha*pG+beta*pL+pR)/(alpha+beta+1)`；alpha/beta是经softplus的两个全局可训练标量，pR是双侧embedding进入MLP得到的概率分类头。实现定位、原checkpoint系数曲线与固定权重推理拆分见[residual核查](../reports/residual-audit-20261028/README.md)。
+
 ## 已复现的大表
 
 历史三种 shot、seeds42/43/44，共45格已经逐节点预测、Joint权重及指标核对一致。结果见 `reports/fairrouter-baseline/REPORT.md`；`RESULTS.json` 保存逐格数据，`COMPLETE.json` 保存原报告及配置哈希。
