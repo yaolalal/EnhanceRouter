@@ -1,0 +1,46 @@
+{
+  "config": {
+    "dim": 64,
+    "lr": 0.003,
+    "cross": 0.25,
+    "gate_lr": 1.0,
+    "warmup": 0,
+    "gate_gold": false,
+    "aux": 0.0,
+    "keep": 0.1,
+    "max_steps": 500,
+    "validate_every": 50,
+    "patience": 5,
+    "batch_size": 64
+  },
+  "candidates": [
+    {
+      "config": {
+        "dim": 64,
+        "lr": 0.003,
+        "cross": 0.25,
+        "gate_lr": 1.0,
+        "warmup": 0,
+        "gate_gold": false,
+        "aux": 0.0,
+        "keep": 0.1,
+        "max_steps": 500,
+        "validate_every": 50,
+        "patience": 5,
+        "batch_size": 64
+      },
+      "validation": {
+        "accuracy": 0.896551724137931,
+        "nll": 0.37667946924471424,
+        "step": 250
+      }
+    }
+  ],
+  "validation": {
+    "accuracy": 0.896551724137931,
+    "nll": 0.37667946924471424,
+    "step": 250
+  },
+  "query_truth_used": false,
+  "search": "fixed B0 configuration"
+}
