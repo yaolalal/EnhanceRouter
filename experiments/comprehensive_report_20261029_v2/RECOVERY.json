@@ -1,0 +1,13 @@
+{
+  "failed_job": "121924_31",
+  "failed_run": "runs/comprehensive-b0-3x2-20261029-v1",
+  "preserved_source_directory": "experiments/comprehensive_report_20261029",
+  "preserved_code_sha256": "7b5caadf55bdbf52c1843c9cea44217babaffee69bd237f8f5c821baadf5f6f9",
+  "cancelled_own_jobs": [
+    121924,
+    121925
+  ],
+  "reason": "Raw analysis wrapper upcast candidate output to float64 before replaying original calibration; shared neural heads may natively return float32. Restore native dtype for replay; do not loosen original1e-8 tolerance.",
+  "fix": "remove dtype=np.float64 cast; record native dtype and per-field replay error; add cell31 to new pilot; new run registration and full source isolation",
+  "model_or_metric_definition_changed": false
+}

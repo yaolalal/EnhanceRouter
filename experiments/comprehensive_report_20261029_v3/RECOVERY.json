@@ -1,0 +1,21 @@
+{
+  "preserved_runs": [
+    "runs/comprehensive-b0-3x2-20261029-v1",
+    "runs/comprehensive-b0-3x2-20261029-v2"
+  ],
+  "preserved_sources": [
+    "experiments/comprehensive_report_20261029",
+    "experiments/comprehensive_report_20261029_v2"
+  ],
+  "diagnostic_job": 121989,
+  "diagnostic_sha256": "d78b9eb0eb3caec02c07d5feef28295a09c725b8e36fd2993a9a5e172c6ae4be",
+  "root_cause": "v6 neural scorer torch CPU thread-count rounding: threads=1 reproduces stored historical and migrated B0 scores exactly; threads=2 introduces trust max2.6408e-8 and score max1.9562e-8, same routing/ranking. Direct and cached replay agree exactly. V2 dtype hypothesis was not the cause.",
+  "fix": "Restore original CPU execution profile from known1/2 threads by minimum error to sealed deployment outputs, no labels/metrics or model fitting; prefer exact replay and retain1e-8 plus exact routing. Preserve native dtype. All actual metrics/labels/models remain unchanged.",
+  "prior_cancelled_jobs": [
+    121924,
+    121925,
+    121977,
+    121978,
+    121979
+  ]
+}

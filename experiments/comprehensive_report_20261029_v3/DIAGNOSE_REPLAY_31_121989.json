@@ -1,0 +1,1277 @@
+{
+  "job": "121989",
+  "bank": {
+    "path": "/home/wujingyao/codes/TAG_Fewshot_Learning/EALR-GTC/runs/multiseed_reproduction_20260909_v1/seed43/router_work/r8_disagreement/banks/citeseer/query.pt",
+    "resolved": "/home/wujingyao/codes/TAG_Fewshot_Learning/EALR-GTC/runs/multiseed_reproduction_20260909_v1/seed43/router_work/r8_disagreement/banks/citeseer/query.pt",
+    "hash_algorithm": "sha256",
+    "hash": "47112edbe486caab052bf3f118d49413bd10f2b1b19b5a777449f71e5f324b80",
+    "bytes": 6361908
+  },
+  "results": [
+    {
+      "variant": "B0",
+      "origin": "run_model",
+      "path": "/homes/@LH-IIOT.COM/1/wujingyao-20354/wujingyao/EnhanceRouter/runs/stage0-20261026-v2/cells/shot5/seed43/citeseer/b0/models.joblib",
+      "model_sha256": "b07be51d99081ac5f34936f93b4c2fc89e3c7c7d11173813eead9e335bffaddf",
+      "threads": 1,
+      "heads": {
+        "trust": {
+          "engine": "v6",
+          "dtype": "float64",
+          "config": {
+            "adapt_steps": 80,
+            "batch_size": 256,
+            "consistency": 0.0,
+            "dropout": 0.1,
+            "embedding_mode": "llm",
+            "feature_mode": "all",
+            "gate_penalty": 0.001,
+            "id": "incumbent",
+            "kind": "neural",
+            "lr": 0.0003,
+            "mixup": 0.0,
+            "ranking": 0.0,
+            "seed": 42,
+            "source_steps": 100,
+            "target_steps": 80,
+            "weight_decay": 0.01,
+            "width": 32
+          },
+          "sha256": "c6bb6e75283e9acb7c7c0c6d9ae568b63e34d98875a2edb819fe566ddb2c1744"
+        },
+        "preference": {
+          "engine": "tune",
+          "dtype": "float64",
+          "config": {
+            "family": "joint_shared",
+            "mode": "compact",
+            "scope": "transfer",
+            "rank": false,
+            "seed": 42,
+            "target_mass": 0.25,
+            "source_profile": "uniform",
+            "width": 32,
+            "steps": 160,
+            "adapt_steps": 40,
+            "weight_decay": 0.05,
+            "dropout": 0.05,
+            "lr": 0.002,
+            "seeds": [
+              42,
+              137,
+              2026
+            ],
+            "preference_loss_weight": 1.0,
+            "trust_loss_weight": 1.0,
+            "id": "t_5cec1b55bb11",
+            "target_domain": 4
+          },
+          "sha256": "334fd8272d60d0981eb31a337cd1c95810ddd48caaf24061ca2b6628e32bed20"
+        }
+      },
+      "outer_keys": {
+        "tuning_schema": "crossfit_v1",
+        "calibration": {
+          "trust": {
+            "slope": 0.184198404311868,
+            "bias": -0.1614290125338152
+          },
+          "preference": {
+            "slope": 1.3191742315793693,
+            "bias": 0.35635299293549977
+          }
+        },
+        "route_recipe": {
+          "trust_scale": 1.0,
+          "trust_bias": 0.0,
+          "boundary": 0.5
+        }
+      },
+      "errors": {
+        "score": {
+          "dtype": "float64",
+          "stored_dtype": "float64",
+          "max_abs": 0.0,
+          "count_above_1e8": 0,
+          "direct_vs_cached": 0.0,
+          "rank_equal": true,
+          "examples": [
+            {
+              "index": 703,
+              "actual": 0.4530546194555389,
+              "expected": 0.4530546194555389
+            },
+            {
+              "index": 704,
+              "actual": 0.42729653679996493,
+              "expected": 0.42729653679996493
+            },
+            {
+              "index": 705,
+              "actual": 0.637402231802899,
+              "expected": 0.637402231802899
+            }
+          ]
+        },
+        "trust": {
+          "dtype": "float64",
+          "stored_dtype": "float64",
+          "max_abs": 0.0,
+          "count_above_1e8": 0,
+          "direct_vs_cached": 0.0,
+          "rank_equal": true,
+          "examples": [
+            {
+              "index": 703,
+              "actual": 0.8079071210174049,
+              "expected": 0.8079071210174049
+            },
+            {
+              "index": 704,
+              "actual": 0.8157014077154692,
+              "expected": 0.8157014077154692
+            },
+            {
+              "index": 705,
+              "actual": 0.8519145430245947,
+              "expected": 0.8519145430245947
+            }
+          ]
+        },
+        "preference": {
+          "dtype": "float64",
+          "stored_dtype": "float64",
+          "max_abs": 0.0,
+          "count_above_1e8": 0,
+          "direct_vs_cached": 0.0,
+          "rank_equal": true,
+          "examples": [
+            {
+              "index": 703,
+              "actual": 0.4392243765780861,
+              "expected": 0.4392243765780861
+            },
+            {
+              "index": 704,
+              "actual": 0.5238394009845982,
+              "expected": 0.5238394009845982
+            },
+            {
+              "index": 705,
+              "actual": 0.25180026914448705,
+              "expected": 0.25180026914448705
+            }
+          ]
+        }
+      },
+      "route_equal": true
+    },
+    {
+      "variant": "B0",
+      "origin": "run_model",
+      "path": "/homes/@LH-IIOT.COM/1/wujingyao-20354/wujingyao/EnhanceRouter/runs/stage0-20261026-v2/cells/shot5/seed43/citeseer/b0/models.joblib",
+      "model_sha256": "b07be51d99081ac5f34936f93b4c2fc89e3c7c7d11173813eead9e335bffaddf",
+      "threads": 2,
+      "heads": {
+        "trust": {
+          "engine": "v6",
+          "dtype": "float64",
+          "config": {
+            "adapt_steps": 80,
+            "batch_size": 256,
+            "consistency": 0.0,
+            "dropout": 0.1,
+            "embedding_mode": "llm",
+            "feature_mode": "all",
+            "gate_penalty": 0.001,
+            "id": "incumbent",
+            "kind": "neural",
+            "lr": 0.0003,
+            "mixup": 0.0,
+            "ranking": 0.0,
+            "seed": 42,
+            "source_steps": 100,
+            "target_steps": 80,
+            "weight_decay": 0.01,
+            "width": 32
+          },
+          "sha256": "b5ccf33b1bfbdce76daef7db9dc4075b62d888e26bbe4df114bb095e6bb3d989"
+        },
+        "preference": {
+          "engine": "tune",
+          "dtype": "float64",
+          "config": {
+            "family": "joint_shared",
+            "mode": "compact",
+            "scope": "transfer",
+            "rank": false,
+            "seed": 42,
+            "target_mass": 0.25,
+            "source_profile": "uniform",
+            "width": 32,
+            "steps": 160,
+            "adapt_steps": 40,
+            "weight_decay": 0.05,
+            "dropout": 0.05,
+            "lr": 0.002,
+            "seeds": [
+              42,
+              137,
+              2026
+            ],
+            "preference_loss_weight": 1.0,
+            "trust_loss_weight": 1.0,
+            "id": "t_5cec1b55bb11",
+            "target_domain": 4
+          },
+          "sha256": "334fd8272d60d0981eb31a337cd1c95810ddd48caaf24061ca2b6628e32bed20"
+        }
+      },
+      "outer_keys": {
+        "tuning_schema": "crossfit_v1",
+        "calibration": {
+          "trust": {
+            "slope": 0.184198404311868,
+            "bias": -0.1614290125338152
+          },
+          "preference": {
+            "slope": 1.3191742315793693,
+            "bias": 0.35635299293549977
+          }
+        },
+        "route_recipe": {
+          "trust_scale": 1.0,
+          "trust_bias": 0.0,
+          "boundary": 0.5
+        }
+      },
+      "errors": {
+        "score": {
+          "dtype": "float64",
+          "stored_dtype": "float64",
+          "max_abs": 1.9562085951108088e-08,
+          "count_above_1e8": 2,
+          "direct_vs_cached": 0.0,
+          "rank_equal": true,
+          "examples": [
+            {
+              "index": 239,
+              "actual": 0.46688554939173027,
+              "expected": 0.46688554939173027
+            },
+            {
+              "index": 704,
+              "actual": 0.427296550633632,
+              "expected": 0.42729653679996493
+            },
+            {
+              "index": 352,
+              "actual": 0.7039402138153062,
+              "expected": 0.7039402333773922
+            }
+          ]
+        },
+        "trust": {
+          "dtype": "float64",
+          "stored_dtype": "float64",
+          "max_abs": 2.6408221720508607e-08,
+          "count_above_1e8": 2,
+          "direct_vs_cached": 0.0,
+          "rank_equal": true,
+          "examples": [
+            {
+              "index": 239,
+              "actual": 0.7970732137432293,
+              "expected": 0.7970732137432293
+            },
+            {
+              "index": 352,
+              "actual": 0.8418047409849775,
+              "expected": 0.8418047643782378
+            },
+            {
+              "index": 704,
+              "actual": 0.8157014341236909,
+              "expected": 0.8157014077154692
+            }
+          ]
+        },
+        "preference": {
+          "dtype": "float64",
+          "stored_dtype": "float64",
+          "max_abs": 0.0,
+          "count_above_1e8": 0,
+          "direct_vs_cached": 0.0,
+          "rank_equal": true,
+          "examples": [
+            {
+              "index": 703,
+              "actual": 0.4392243765780861,
+              "expected": 0.4392243765780861
+            },
+            {
+              "index": 704,
+              "actual": 0.5238394009845982,
+              "expected": 0.5238394009845982
+            },
+            {
+              "index": 705,
+              "actual": 0.25180026914448705,
+              "expected": 0.25180026914448705
+            }
+          ]
+        }
+      },
+      "route_equal": true
+    },
+    {
+      "variant": "B0",
+      "origin": "historical_bundle",
+      "path": "/home/wujingyao/codes/TAG_Fewshot_Learning/EALR-GTC/runs/router_v10_multiseed_tune_20260913_v1/seed43/models/citeseer/disagreement/bundle.joblib",
+      "model_sha256": "2473abd6cd4845ae3d3aad713ecc556b7bffff582bbfeec9eb0d36ebdaf20189",
+      "threads": 1,
+      "heads": {
+        "trust": {
+          "engine": "v6",
+          "dtype": "float64",
+          "config": {
+            "adapt_steps": 80,
+            "batch_size": 256,
+            "consistency": 0.0,
+            "dropout": 0.1,
+            "embedding_mode": "llm",
+            "feature_mode": "all",
+            "gate_penalty": 0.001,
+            "id": "incumbent",
+            "kind": "neural",
+            "lr": 0.0003,
+            "mixup": 0.0,
+            "ranking": 0.0,
+            "seed": 42,
+            "source_steps": 100,
+            "target_steps": 80,
+            "weight_decay": 0.01,
+            "width": 32
+          },
+          "sha256": "c6bb6e75283e9acb7c7c0c6d9ae568b63e34d98875a2edb819fe566ddb2c1744"
+        },
+        "preference": {
+          "engine": "tune",
+          "dtype": "float64",
+          "config": {
+            "family": "joint_shared",
+            "mode": "compact",
+            "scope": "transfer",
+            "rank": false,
+            "seed": 42,
+            "target_mass": 0.25,
+            "source_profile": "uniform",
+            "width": 32,
+            "steps": 160,
+            "adapt_steps": 40,
+            "weight_decay": 0.05,
+            "dropout": 0.05,
+            "lr": 0.002,
+            "seeds": [
+              42,
+              137,
+              2026
+            ],
+            "preference_loss_weight": 1.0,
+            "trust_loss_weight": 1.0,
+            "id": "t_5cec1b55bb11",
+            "target_domain": 4
+          },
+          "sha256": "334fd8272d60d0981eb31a337cd1c95810ddd48caaf24061ca2b6628e32bed20"
+        }
+      },
+      "outer_keys": {
+        "tuning_schema": "crossfit_v1",
+        "calibration": {
+          "trust": {
+            "slope": 0.184198404311868,
+            "bias": -0.1614290125338152
+          },
+          "preference": {
+            "slope": 1.3191742315793693,
+            "bias": 0.35635299293549977
+          }
+        },
+        "route_recipe": {
+          "trust_scale": 1.0,
+          "trust_bias": 0.0,
+          "boundary": 0.5
+        }
+      },
+      "errors": {
+        "score": {
+          "dtype": "float64",
+          "stored_dtype": "float64",
+          "max_abs": 0.0,
+          "count_above_1e8": 0,
+          "direct_vs_cached": 0.0,
+          "rank_equal": true,
+          "examples": [
+            {
+              "index": 703,
+              "actual": 0.4530546194555389,
+              "expected": 0.4530546194555389
+            },
+            {
+              "index": 704,
+              "actual": 0.42729653679996493,
+              "expected": 0.42729653679996493
+            },
+            {
+              "index": 705,
+              "actual": 0.637402231802899,
+              "expected": 0.637402231802899
+            }
+          ]
+        },
+        "trust": {
+          "dtype": "float64",
+          "stored_dtype": "float64",
+          "max_abs": 0.0,
+          "count_above_1e8": 0,
+          "direct_vs_cached": 0.0,
+          "rank_equal": true,
+          "examples": [
+            {
+              "index": 703,
+              "actual": 0.8079071210174049,
+              "expected": 0.8079071210174049
+            },
+            {
+              "index": 704,
+              "actual": 0.8157014077154692,
+              "expected": 0.8157014077154692
+            },
+            {
+              "index": 705,
+              "actual": 0.8519145430245947,
+              "expected": 0.8519145430245947
+            }
+          ]
+        },
+        "preference": {
+          "dtype": "float64",
+          "stored_dtype": "float64",
+          "max_abs": 0.0,
+          "count_above_1e8": 0,
+          "direct_vs_cached": 0.0,
+          "rank_equal": true,
+          "examples": [
+            {
+              "index": 703,
+              "actual": 0.4392243765780861,
+              "expected": 0.4392243765780861
+            },
+            {
+              "index": 704,
+              "actual": 0.5238394009845982,
+              "expected": 0.5238394009845982
+            },
+            {
+              "index": 705,
+              "actual": 0.25180026914448705,
+              "expected": 0.25180026914448705
+            }
+          ]
+        }
+      },
+      "route_equal": true
+    },
+    {
+      "variant": "B0",
+      "origin": "historical_bundle",
+      "path": "/home/wujingyao/codes/TAG_Fewshot_Learning/EALR-GTC/runs/router_v10_multiseed_tune_20260913_v1/seed43/models/citeseer/disagreement/bundle.joblib",
+      "model_sha256": "2473abd6cd4845ae3d3aad713ecc556b7bffff582bbfeec9eb0d36ebdaf20189",
+      "threads": 2,
+      "heads": {
+        "trust": {
+          "engine": "v6",
+          "dtype": "float64",
+          "config": {
+            "adapt_steps": 80,
+            "batch_size": 256,
+            "consistency": 0.0,
+            "dropout": 0.1,
+            "embedding_mode": "llm",
+            "feature_mode": "all",
+            "gate_penalty": 0.001,
+            "id": "incumbent",
+            "kind": "neural",
+            "lr": 0.0003,
+            "mixup": 0.0,
+            "ranking": 0.0,
+            "seed": 42,
+            "source_steps": 100,
+            "target_steps": 80,
+            "weight_decay": 0.01,
+            "width": 32
+          },
+          "sha256": "b5ccf33b1bfbdce76daef7db9dc4075b62d888e26bbe4df114bb095e6bb3d989"
+        },
+        "preference": {
+          "engine": "tune",
+          "dtype": "float64",
+          "config": {
+            "family": "joint_shared",
+            "mode": "compact",
+            "scope": "transfer",
+            "rank": false,
+            "seed": 42,
+            "target_mass": 0.25,
+            "source_profile": "uniform",
+            "width": 32,
+            "steps": 160,
+            "adapt_steps": 40,
+            "weight_decay": 0.05,
+            "dropout": 0.05,
+            "lr": 0.002,
+            "seeds": [
+              42,
+              137,
+              2026
+            ],
+            "preference_loss_weight": 1.0,
+            "trust_loss_weight": 1.0,
+            "id": "t_5cec1b55bb11",
+            "target_domain": 4
+          },
+          "sha256": "334fd8272d60d0981eb31a337cd1c95810ddd48caaf24061ca2b6628e32bed20"
+        }
+      },
+      "outer_keys": {
+        "tuning_schema": "crossfit_v1",
+        "calibration": {
+          "trust": {
+            "slope": 0.184198404311868,
+            "bias": -0.1614290125338152
+          },
+          "preference": {
+            "slope": 1.3191742315793693,
+            "bias": 0.35635299293549977
+          }
+        },
+        "route_recipe": {
+          "trust_scale": 1.0,
+          "trust_bias": 0.0,
+          "boundary": 0.5
+        }
+      },
+      "errors": {
+        "score": {
+          "dtype": "float64",
+          "stored_dtype": "float64",
+          "max_abs": 1.9562085951108088e-08,
+          "count_above_1e8": 2,
+          "direct_vs_cached": 0.0,
+          "rank_equal": true,
+          "examples": [
+            {
+              "index": 239,
+              "actual": 0.46688554939173027,
+              "expected": 0.46688554939173027
+            },
+            {
+              "index": 704,
+              "actual": 0.427296550633632,
+              "expected": 0.42729653679996493
+            },
+            {
+              "index": 352,
+              "actual": 0.7039402138153062,
+              "expected": 0.7039402333773922
+            }
+          ]
+        },
+        "trust": {
+          "dtype": "float64",
+          "stored_dtype": "float64",
+          "max_abs": 2.6408221720508607e-08,
+          "count_above_1e8": 2,
+          "direct_vs_cached": 0.0,
+          "rank_equal": true,
+          "examples": [
+            {
+              "index": 239,
+              "actual": 0.7970732137432293,
+              "expected": 0.7970732137432293
+            },
+            {
+              "index": 352,
+              "actual": 0.8418047409849775,
+              "expected": 0.8418047643782378
+            },
+            {
+              "index": 704,
+              "actual": 0.8157014341236909,
+              "expected": 0.8157014077154692
+            }
+          ]
+        },
+        "preference": {
+          "dtype": "float64",
+          "stored_dtype": "float64",
+          "max_abs": 0.0,
+          "count_above_1e8": 0,
+          "direct_vs_cached": 0.0,
+          "rank_equal": true,
+          "examples": [
+            {
+              "index": 703,
+              "actual": 0.4392243765780861,
+              "expected": 0.4392243765780861
+            },
+            {
+              "index": 704,
+              "actual": 0.5238394009845982,
+              "expected": 0.5238394009845982
+            },
+            {
+              "index": 705,
+              "actual": 0.25180026914448705,
+              "expected": 0.25180026914448705
+            }
+          ]
+        }
+      },
+      "route_equal": true
+    },
+    {
+      "variant": "D1_25__fixed",
+      "origin": "run_model",
+      "path": "/homes/@LH-IIOT.COM/1/wujingyao-20354/wujingyao/EnhanceRouter/runs/stage0-20261026-v2/cells/shot5/seed43/citeseer/d1_numeric/0.25/models.joblib",
+      "model_sha256": "2407abef4534079d9c1a2b03eeb9464947806538f0ef2c42b2ae4befc654b896",
+      "threads": 1,
+      "heads": {
+        "trust": {
+          "engine": "v6",
+          "dtype": "float64",
+          "config": {
+            "adapt_steps": 80,
+            "batch_size": 256,
+            "consistency": 0.0,
+            "dropout": 0.1,
+            "embedding_mode": "llm",
+            "feature_mode": "all",
+            "gate_penalty": 0.001,
+            "id": "incumbent",
+            "kind": "neural",
+            "lr": 0.0003,
+            "mixup": 0.0,
+            "ranking": 0.0,
+            "seed": 42,
+            "source_steps": 100,
+            "target_steps": 80,
+            "weight_decay": 0.01,
+            "width": 32
+          },
+          "sha256": "fb4967c71c44a69f28031e9219c5ee7d39d2899703ca8b2c4d1e3b44e8bec8a3"
+        },
+        "preference": {
+          "engine": "tune",
+          "dtype": "float64",
+          "config": {
+            "family": "joint_shared",
+            "mode": "compact",
+            "scope": "transfer",
+            "rank": false,
+            "seed": 42,
+            "target_mass": 0.25,
+            "source_profile": "uniform",
+            "width": 32,
+            "steps": 160,
+            "adapt_steps": 40,
+            "weight_decay": 0.05,
+            "dropout": 0.05,
+            "lr": 0.002,
+            "seeds": [
+              42,
+              137,
+              2026
+            ],
+            "preference_loss_weight": 1.0,
+            "trust_loss_weight": 1.0,
+            "id": "t_5cec1b55bb11",
+            "target_domain": 4
+          },
+          "sha256": "334fd8272d60d0981eb31a337cd1c95810ddd48caaf24061ca2b6628e32bed20"
+        }
+      },
+      "outer_keys": {
+        "tuning_schema": "crossfit_v1",
+        "calibration": {
+          "trust": {
+            "slope": 0.20218944158092958,
+            "bias": -0.1644116557208635
+          },
+          "preference": {
+            "slope": 1.3191742315793693,
+            "bias": 0.35635299293549977
+          }
+        },
+        "route_recipe": {
+          "trust_scale": 1.0,
+          "trust_bias": 0.0,
+          "boundary": 0.5
+        }
+      },
+      "errors": {
+        "score": {
+          "dtype": "float64",
+          "stored_dtype": "float64",
+          "max_abs": 0.0,
+          "count_above_1e8": 0,
+          "direct_vs_cached": 0.0,
+          "rank_equal": true,
+          "examples": [
+            {
+              "index": 703,
+              "actual": 0.45034105615275666,
+              "expected": 0.45034105615275666
+            },
+            {
+              "index": 704,
+              "actual": 0.4201620601863159,
+              "expected": 0.4201620601863159
+            },
+            {
+              "index": 705,
+              "actual": 0.6526917815908453,
+              "expected": 0.6526917815908453
+            }
+          ]
+        },
+        "trust": {
+          "dtype": "float64",
+          "stored_dtype": "float64",
+          "max_abs": 0.0,
+          "count_above_1e8": 0,
+          "direct_vs_cached": 0.0,
+          "rank_equal": true,
+          "examples": [
+            {
+              "index": 703,
+              "actual": 0.8030681744058819,
+              "expected": 0.8030681744058819
+            },
+            {
+              "index": 704,
+              "actual": 0.8020818201085821,
+              "expected": 0.8020818201085821
+            },
+            {
+              "index": 705,
+              "actual": 0.8723496610250565,
+              "expected": 0.8723496610250565
+            }
+          ]
+        },
+        "preference": {
+          "dtype": "float64",
+          "stored_dtype": "float64",
+          "max_abs": 0.0,
+          "count_above_1e8": 0,
+          "direct_vs_cached": 0.0,
+          "rank_equal": true,
+          "examples": [
+            {
+              "index": 703,
+              "actual": 0.4392243765780861,
+              "expected": 0.4392243765780861
+            },
+            {
+              "index": 704,
+              "actual": 0.5238394009845982,
+              "expected": 0.5238394009845982
+            },
+            {
+              "index": 705,
+              "actual": 0.25180026914448705,
+              "expected": 0.25180026914448705
+            }
+          ]
+        }
+      },
+      "route_equal": true
+    },
+    {
+      "variant": "D1_25__fixed",
+      "origin": "run_model",
+      "path": "/homes/@LH-IIOT.COM/1/wujingyao-20354/wujingyao/EnhanceRouter/runs/stage0-20261026-v2/cells/shot5/seed43/citeseer/d1_numeric/0.25/models.joblib",
+      "model_sha256": "2407abef4534079d9c1a2b03eeb9464947806538f0ef2c42b2ae4befc654b896",
+      "threads": 2,
+      "heads": {
+        "trust": {
+          "engine": "v6",
+          "dtype": "float64",
+          "config": {
+            "adapt_steps": 80,
+            "batch_size": 256,
+            "consistency": 0.0,
+            "dropout": 0.1,
+            "embedding_mode": "llm",
+            "feature_mode": "all",
+            "gate_penalty": 0.001,
+            "id": "incumbent",
+            "kind": "neural",
+            "lr": 0.0003,
+            "mixup": 0.0,
+            "ranking": 0.0,
+            "seed": 42,
+            "source_steps": 100,
+            "target_steps": 80,
+            "weight_decay": 0.01,
+            "width": 32
+          },
+          "sha256": "fb4967c71c44a69f28031e9219c5ee7d39d2899703ca8b2c4d1e3b44e8bec8a3"
+        },
+        "preference": {
+          "engine": "tune",
+          "dtype": "float64",
+          "config": {
+            "family": "joint_shared",
+            "mode": "compact",
+            "scope": "transfer",
+            "rank": false,
+            "seed": 42,
+            "target_mass": 0.25,
+            "source_profile": "uniform",
+            "width": 32,
+            "steps": 160,
+            "adapt_steps": 40,
+            "weight_decay": 0.05,
+            "dropout": 0.05,
+            "lr": 0.002,
+            "seeds": [
+              42,
+              137,
+              2026
+            ],
+            "preference_loss_weight": 1.0,
+            "trust_loss_weight": 1.0,
+            "id": "t_5cec1b55bb11",
+            "target_domain": 4
+          },
+          "sha256": "334fd8272d60d0981eb31a337cd1c95810ddd48caaf24061ca2b6628e32bed20"
+        }
+      },
+      "outer_keys": {
+        "tuning_schema": "crossfit_v1",
+        "calibration": {
+          "trust": {
+            "slope": 0.20218944158092958,
+            "bias": -0.1644116557208635
+          },
+          "preference": {
+            "slope": 1.3191742315793693,
+            "bias": 0.35635299293549977
+          }
+        },
+        "route_recipe": {
+          "trust_scale": 1.0,
+          "trust_bias": 0.0,
+          "boundary": 0.5
+        }
+      },
+      "errors": {
+        "score": {
+          "dtype": "float64",
+          "stored_dtype": "float64",
+          "max_abs": 0.0,
+          "count_above_1e8": 0,
+          "direct_vs_cached": 0.0,
+          "rank_equal": true,
+          "examples": [
+            {
+              "index": 703,
+              "actual": 0.45034105615275666,
+              "expected": 0.45034105615275666
+            },
+            {
+              "index": 704,
+              "actual": 0.4201620601863159,
+              "expected": 0.4201620601863159
+            },
+            {
+              "index": 705,
+              "actual": 0.6526917815908453,
+              "expected": 0.6526917815908453
+            }
+          ]
+        },
+        "trust": {
+          "dtype": "float64",
+          "stored_dtype": "float64",
+          "max_abs": 0.0,
+          "count_above_1e8": 0,
+          "direct_vs_cached": 0.0,
+          "rank_equal": true,
+          "examples": [
+            {
+              "index": 703,
+              "actual": 0.8030681744058819,
+              "expected": 0.8030681744058819
+            },
+            {
+              "index": 704,
+              "actual": 0.8020818201085821,
+              "expected": 0.8020818201085821
+            },
+            {
+              "index": 705,
+              "actual": 0.8723496610250565,
+              "expected": 0.8723496610250565
+            }
+          ]
+        },
+        "preference": {
+          "dtype": "float64",
+          "stored_dtype": "float64",
+          "max_abs": 0.0,
+          "count_above_1e8": 0,
+          "direct_vs_cached": 0.0,
+          "rank_equal": true,
+          "examples": [
+            {
+              "index": 703,
+              "actual": 0.4392243765780861,
+              "expected": 0.4392243765780861
+            },
+            {
+              "index": 704,
+              "actual": 0.5238394009845982,
+              "expected": 0.5238394009845982
+            },
+            {
+              "index": 705,
+              "actual": 0.25180026914448705,
+              "expected": 0.25180026914448705
+            }
+          ]
+        }
+      },
+      "route_equal": true
+    },
+    {
+      "variant": "D2a_1000__fixed",
+      "origin": "run_model",
+      "path": "/homes/@LH-IIOT.COM/1/wujingyao-20354/wujingyao/EnhanceRouter/runs/stage0-20261026-v2/cells/shot5/seed43/citeseer/d2a/1000/models.joblib",
+      "model_sha256": "940019c7fabf3f63c310db565554cfbbe10cc54394a66e59607d7947ffd736d8",
+      "threads": 1,
+      "heads": {
+        "trust": {
+          "engine": "v6",
+          "dtype": "float64",
+          "config": {
+            "adapt_steps": 80,
+            "batch_size": 256,
+            "consistency": 0.0,
+            "dropout": 0.1,
+            "embedding_mode": "llm",
+            "feature_mode": "all",
+            "gate_penalty": 0.001,
+            "id": "incumbent",
+            "kind": "neural",
+            "lr": 0.0003,
+            "mixup": 0.0,
+            "ranking": 0.0,
+            "seed": 42,
+            "source_steps": 100,
+            "target_steps": 80,
+            "weight_decay": 0.01,
+            "width": 32
+          },
+          "sha256": "c426ee55879415691d1edecf41de8acac00594a1376298b49e3507d26f58fa83"
+        },
+        "preference": {
+          "engine": "tune",
+          "dtype": "float64",
+          "config": {
+            "family": "joint_shared",
+            "mode": "compact",
+            "scope": "transfer",
+            "rank": false,
+            "seed": 42,
+            "target_mass": 0.25,
+            "source_profile": "uniform",
+            "width": 32,
+            "steps": 160,
+            "adapt_steps": 40,
+            "weight_decay": 0.05,
+            "dropout": 0.05,
+            "lr": 0.002,
+            "seeds": [
+              42,
+              137,
+              2026
+            ],
+            "preference_loss_weight": 1.0,
+            "trust_loss_weight": 1.0,
+            "id": "t_5cec1b55bb11",
+            "target_domain": 4
+          },
+          "sha256": "4ea3bdb980f0b39ee7473d15a4d2e7aadd6265fe305a91a91a65e5d4220232a3"
+        }
+      },
+      "outer_keys": {
+        "tuning_schema": "crossfit_v1",
+        "calibration": {
+          "trust": {
+            "slope": 0.184198404311868,
+            "bias": -0.1614290125338152
+          },
+          "preference": {
+            "slope": 1.3191742315793693,
+            "bias": 0.35635299293549977
+          }
+        },
+        "route_recipe": {
+          "trust_scale": 1.0,
+          "trust_bias": 0.0,
+          "boundary": 0.5
+        }
+      },
+      "errors": {
+        "score": {
+          "dtype": "float64",
+          "stored_dtype": "float64",
+          "max_abs": 0.0,
+          "count_above_1e8": 0,
+          "direct_vs_cached": 0.0,
+          "rank_equal": true,
+          "examples": [
+            {
+              "index": 703,
+              "actual": 0.36933903413915553,
+              "expected": 0.36933903413915553
+            },
+            {
+              "index": 704,
+              "actual": 0.4488728674592122,
+              "expected": 0.4488728674592122
+            },
+            {
+              "index": 705,
+              "actual": 0.4983517430083753,
+              "expected": 0.4983517430083753
+            }
+          ]
+        },
+        "trust": {
+          "dtype": "float64",
+          "stored_dtype": "float64",
+          "max_abs": 0.0,
+          "count_above_1e8": 0,
+          "direct_vs_cached": 0.0,
+          "rank_equal": true,
+          "examples": [
+            {
+              "index": 703,
+              "actual": 0.44157761186657263,
+              "expected": 0.44157761186657263
+            },
+            {
+              "index": 704,
+              "actual": 0.529272227732536,
+              "expected": 0.529272227732536
+            },
+            {
+              "index": 705,
+              "actual": 0.5631531237570956,
+              "expected": 0.5631531237570956
+            }
+          ]
+        },
+        "preference": {
+          "dtype": "float64",
+          "stored_dtype": "float64",
+          "max_abs": 0.0,
+          "count_above_1e8": 0,
+          "direct_vs_cached": 0.0,
+          "rank_equal": true,
+          "examples": [
+            {
+              "index": 703,
+              "actual": 0.16359202954620064,
+              "expected": 0.16359202954620064
+            },
+            {
+              "index": 704,
+              "actual": 0.15190549600111095,
+              "expected": 0.15190549600111095
+            },
+            {
+              "index": 705,
+              "actual": 0.11506884720162006,
+              "expected": 0.11506884720162006
+            }
+          ]
+        }
+      },
+      "route_equal": true
+    },
+    {
+      "variant": "D2a_1000__fixed",
+      "origin": "run_model",
+      "path": "/homes/@LH-IIOT.COM/1/wujingyao-20354/wujingyao/EnhanceRouter/runs/stage0-20261026-v2/cells/shot5/seed43/citeseer/d2a/1000/models.joblib",
+      "model_sha256": "940019c7fabf3f63c310db565554cfbbe10cc54394a66e59607d7947ffd736d8",
+      "threads": 2,
+      "heads": {
+        "trust": {
+          "engine": "v6",
+          "dtype": "float64",
+          "config": {
+            "adapt_steps": 80,
+            "batch_size": 256,
+            "consistency": 0.0,
+            "dropout": 0.1,
+            "embedding_mode": "llm",
+            "feature_mode": "all",
+            "gate_penalty": 0.001,
+            "id": "incumbent",
+            "kind": "neural",
+            "lr": 0.0003,
+            "mixup": 0.0,
+            "ranking": 0.0,
+            "seed": 42,
+            "source_steps": 100,
+            "target_steps": 80,
+            "weight_decay": 0.01,
+            "width": 32
+          },
+          "sha256": "edc1d5c8e1ae3765dd947814ea7616a219224a21e21e955f5a07fee81ea3a313"
+        },
+        "preference": {
+          "engine": "tune",
+          "dtype": "float64",
+          "config": {
+            "family": "joint_shared",
+            "mode": "compact",
+            "scope": "transfer",
+            "rank": false,
+            "seed": 42,
+            "target_mass": 0.25,
+            "source_profile": "uniform",
+            "width": 32,
+            "steps": 160,
+            "adapt_steps": 40,
+            "weight_decay": 0.05,
+            "dropout": 0.05,
+            "lr": 0.002,
+            "seeds": [
+              42,
+              137,
+              2026
+            ],
+            "preference_loss_weight": 1.0,
+            "trust_loss_weight": 1.0,
+            "id": "t_5cec1b55bb11",
+            "target_domain": 4
+          },
+          "sha256": "4ea3bdb980f0b39ee7473d15a4d2e7aadd6265fe305a91a91a65e5d4220232a3"
+        }
+      },
+      "outer_keys": {
+        "tuning_schema": "crossfit_v1",
+        "calibration": {
+          "trust": {
+            "slope": 0.184198404311868,
+            "bias": -0.1614290125338152
+          },
+          "preference": {
+            "slope": 1.3191742315793693,
+            "bias": 0.35635299293549977
+          }
+        },
+        "route_recipe": {
+          "trust_scale": 1.0,
+          "trust_bias": 0.0,
+          "boundary": 0.5
+        }
+      },
+      "errors": {
+        "score": {
+          "dtype": "float64",
+          "stored_dtype": "float64",
+          "max_abs": 6.086330717192112e-09,
+          "count_above_1e8": 0,
+          "direct_vs_cached": 0.0,
+          "rank_equal": true,
+          "examples": [
+            {
+              "index": 239,
+              "actual": 0.3570095126818308,
+              "expected": 0.3570095126818308
+            },
+            {
+              "index": 704,
+              "actual": 0.4488728720989041,
+              "expected": 0.4488728674592122
+            },
+            {
+              "index": 352,
+              "actual": 0.31779024398027844,
+              "expected": 0.31779025006660916
+            }
+          ]
+        },
+        "trust": {
+          "dtype": "float64",
+          "stored_dtype": "float64",
+          "max_abs": 1.079977740570115e-08,
+          "count_above_1e8": 1,
+          "direct_vs_cached": 0.0,
+          "rank_equal": true,
+          "examples": [
+            {
+              "index": 239,
+              "actual": 0.4643331775332431,
+              "expected": 0.4643331775332431
+            },
+            {
+              "index": 704,
+              "actual": 0.5292722332032611,
+              "expected": 0.529272227732536
+            },
+            {
+              "index": 352,
+              "actual": 0.5638970476328677,
+              "expected": 0.5638970584326451
+            }
+          ]
+        },
+        "preference": {
+          "dtype": "float64",
+          "stored_dtype": "float64",
+          "max_abs": 0.0,
+          "count_above_1e8": 0,
+          "direct_vs_cached": 0.0,
+          "rank_equal": true,
+          "examples": [
+            {
+              "index": 703,
+              "actual": 0.16359202954620064,
+              "expected": 0.16359202954620064
+            },
+            {
+              "index": 704,
+              "actual": 0.15190549600111095,
+              "expected": 0.15190549600111095
+            },
+            {
+              "index": 705,
+              "actual": 0.11506884720162006,
+              "expected": 0.11506884720162006
+            }
+          ]
+        }
+      },
+      "route_equal": true
+    }
+  ],
+  "code_sha256": "f4fe3bb90231d3f61d4db78756af867594a068aef09a8c177e15138b91830c87"
+}
