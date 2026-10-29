@@ -1,0 +1,164 @@
+# 3×2及B0：完整模型、pR单独、去pR准确率
+
+覆盖五数据集、3/5/10-shot、seeds42–46、7种设置，共525份冻结模型。全部计算使用各seed原顺序eval1000，不重新训练、不重调超参。
+完整模型pJ=(alpha*pG+beta*pL+pR)/(alpha+beta+1)；pR单独为同一已训练checkpoint的argmax(pR)；去pR为(alpha*pG+beta*pL)/(alpha+beta)，保留该模型自身已训练alpha/beta。
+这衡量冻结模型的推理拆分，不等于独立重训pR-only或无pR模型。完整模型预测与3×2保存结果逐节点一致，去pR标签与此前3×2的own-pGL证据逐项一致；90份既有组件结果再次逐值一致。
+
+| Dataset | Setting | n | 完整模型% | pR单独% | 去pR% | pR改变标签比例% |
+|---|---|---:|---:|---:|---:|---:|
+| ALL | B0 | 75 | 75.35 | 70.11 | 72.60 | 11.53 |
+| ALL | D1_25__fixed | 75 | 75.04 | 67.90 | 72.35 | 11.29 |
+| ALL | D1_25__retuned | 75 | 75.25 | 69.34 | 72.61 | 11.68 |
+| ALL | D2a_1000__fixed | 75 | 75.00 | 67.22 | 72.36 | 10.92 |
+| ALL | D2a_1000__retuned | 75 | 75.27 | 69.34 | 72.66 | 11.17 |
+| ALL | D4_confidence__fixed | 75 | 73.43 | 60.23 | 72.16 | 9.75 |
+| ALL | D4_confidence__retuned | 75 | 74.39 | 65.91 | 72.61 | 11.69 |
+| cora | B0 | 15 | 80.33 | 78.13 | 77.89 | 12.51 |
+| cora | D1_25__fixed | 15 | 79.94 | 78.19 | 77.07 | 12.73 |
+| cora | D1_25__retuned | 15 | 80.53 | 78.77 | 78.30 | 11.26 |
+| cora | D2a_1000__fixed | 15 | 79.81 | 77.52 | 76.84 | 12.31 |
+| cora | D2a_1000__retuned | 15 | 80.33 | 76.67 | 78.27 | 11.59 |
+| cora | D4_confidence__fixed | 15 | 75.39 | 67.31 | 75.76 | 10.16 |
+| cora | D4_confidence__retuned | 15 | 78.28 | 69.49 | 78.33 | 11.89 |
+| citeseer | B0 | 15 | 73.47 | 70.57 | 73.08 | 9.59 |
+| citeseer | D1_25__fixed | 15 | 73.79 | 67.81 | 73.36 | 6.59 |
+| citeseer | D1_25__retuned | 15 | 73.57 | 69.37 | 72.99 | 9.17 |
+| citeseer | D2a_1000__fixed | 15 | 73.52 | 66.23 | 73.01 | 7.40 |
+| citeseer | D2a_1000__retuned | 15 | 73.78 | 65.58 | 73.22 | 7.15 |
+| citeseer | D4_confidence__fixed | 15 | 72.47 | 66.25 | 73.28 | 6.80 |
+| citeseer | D4_confidence__retuned | 15 | 73.09 | 65.75 | 73.34 | 7.55 |
+| pubmed | B0 | 15 | 90.69 | 86.01 | 87.97 | 6.51 |
+| pubmed | D1_25__fixed | 15 | 90.39 | 80.72 | 87.40 | 6.75 |
+| pubmed | D1_25__retuned | 15 | 90.36 | 85.03 | 87.73 | 6.99 |
+| pubmed | D2a_1000__fixed | 15 | 90.43 | 80.86 | 87.89 | 6.04 |
+| pubmed | D2a_1000__retuned | 15 | 90.47 | 85.41 | 87.85 | 6.41 |
+| pubmed | D4_confidence__fixed | 15 | 89.78 | 70.26 | 87.81 | 5.81 |
+| pubmed | D4_confidence__retuned | 15 | 90.55 | 89.75 | 87.27 | 7.61 |
+| arxiv | B0 | 15 | 59.61 | 51.99 | 53.76 | 17.81 |
+| arxiv | D1_25__fixed | 15 | 59.27 | 51.42 | 53.74 | 18.91 |
+| arxiv | D1_25__retuned | 15 | 59.61 | 52.70 | 53.76 | 19.35 |
+| arxiv | D2a_1000__fixed | 15 | 59.15 | 48.23 | 53.75 | 16.87 |
+| arxiv | D2a_1000__retuned | 15 | 59.33 | 53.25 | 53.75 | 19.25 |
+| arxiv | D4_confidence__fixed | 15 | 58.37 | 41.82 | 53.77 | 14.89 |
+| arxiv | D4_confidence__retuned | 15 | 58.97 | 47.66 | 53.82 | 18.58 |
+| ogbn-products | B0 | 15 | 72.66 | 63.82 | 70.28 | 11.23 |
+| ogbn-products | D1_25__fixed | 15 | 71.79 | 61.39 | 70.15 | 11.48 |
+| ogbn-products | D1_25__retuned | 15 | 72.19 | 60.83 | 70.27 | 11.63 |
+| ogbn-products | D2a_1000__fixed | 15 | 72.08 | 63.25 | 70.30 | 11.97 |
+| ogbn-products | D2a_1000__retuned | 15 | 72.42 | 65.78 | 70.23 | 11.45 |
+| ogbn-products | D4_confidence__fixed | 15 | 71.17 | 55.52 | 70.18 | 11.07 |
+| ogbn-products | D4_confidence__retuned | 15 | 71.08 | 56.92 | 70.28 | 12.82 |
+
+## 各数据集、各shot（五seed均值）
+
+| Dataset | Shot | Setting | n | 完整模型% | pR单独% | 去pR% |
+|---|---:|---|---:|---:|---:|---:|
+| cora | 3 | B0 | 5 | 79.14 | 77.26 | 76.72 |
+| cora | 3 | D1_25__fixed | 5 | 79.06 | 77.62 | 76.22 |
+| cora | 3 | D1_25__retuned | 5 | 79.86 | 77.34 | 77.20 |
+| cora | 3 | D2a_1000__fixed | 5 | 78.88 | 75.00 | 75.54 |
+| cora | 3 | D2a_1000__retuned | 5 | 78.64 | 73.34 | 76.76 |
+| cora | 3 | D4_confidence__fixed | 5 | 73.26 | 69.86 | 73.00 |
+| cora | 3 | D4_confidence__retuned | 5 | 77.10 | 71.40 | 77.92 |
+| cora | 5 | B0 | 5 | 80.56 | 78.06 | 77.98 |
+| cora | 5 | D1_25__fixed | 5 | 79.90 | 78.52 | 76.26 |
+| cora | 5 | D1_25__retuned | 5 | 80.10 | 78.40 | 77.66 |
+| cora | 5 | D2a_1000__fixed | 5 | 79.82 | 78.18 | 76.76 |
+| cora | 5 | D2a_1000__retuned | 5 | 80.60 | 77.60 | 78.18 |
+| cora | 5 | D4_confidence__fixed | 5 | 75.78 | 56.64 | 75.90 |
+| cora | 5 | D4_confidence__retuned | 5 | 78.12 | 61.06 | 77.82 |
+| cora | 10 | B0 | 5 | 81.30 | 79.08 | 78.98 |
+| cora | 10 | D1_25__fixed | 5 | 80.86 | 78.42 | 78.74 |
+| cora | 10 | D1_25__retuned | 5 | 81.64 | 80.56 | 80.04 |
+| cora | 10 | D2a_1000__fixed | 5 | 80.72 | 79.38 | 78.22 |
+| cora | 10 | D2a_1000__retuned | 5 | 81.76 | 79.06 | 79.86 |
+| cora | 10 | D4_confidence__fixed | 5 | 77.12 | 75.42 | 78.38 |
+| cora | 10 | D4_confidence__retuned | 5 | 79.62 | 76.02 | 79.24 |
+| citeseer | 3 | B0 | 5 | 73.36 | 70.86 | 72.54 |
+| citeseer | 3 | D1_25__fixed | 5 | 73.68 | 61.98 | 73.40 |
+| citeseer | 3 | D1_25__retuned | 5 | 73.50 | 70.52 | 72.24 |
+| citeseer | 3 | D2a_1000__fixed | 5 | 73.02 | 58.96 | 72.32 |
+| citeseer | 3 | D2a_1000__retuned | 5 | 73.30 | 56.06 | 72.94 |
+| citeseer | 3 | D4_confidence__fixed | 5 | 72.64 | 60.22 | 73.18 |
+| citeseer | 3 | D4_confidence__retuned | 5 | 73.14 | 60.14 | 73.36 |
+| citeseer | 5 | B0 | 5 | 72.76 | 70.20 | 73.36 |
+| citeseer | 5 | D1_25__fixed | 5 | 73.78 | 70.44 | 73.32 |
+| citeseer | 5 | D1_25__retuned | 5 | 73.48 | 70.24 | 73.36 |
+| citeseer | 5 | D2a_1000__fixed | 5 | 73.50 | 69.28 | 73.36 |
+| citeseer | 5 | D2a_1000__retuned | 5 | 73.64 | 70.70 | 73.32 |
+| citeseer | 5 | D4_confidence__fixed | 5 | 72.28 | 68.66 | 73.28 |
+| citeseer | 5 | D4_confidence__retuned | 5 | 72.98 | 68.70 | 73.32 |
+| citeseer | 10 | B0 | 5 | 74.28 | 70.66 | 73.34 |
+| citeseer | 10 | D1_25__fixed | 5 | 73.90 | 71.00 | 73.36 |
+| citeseer | 10 | D1_25__retuned | 5 | 73.74 | 67.34 | 73.38 |
+| citeseer | 10 | D2a_1000__fixed | 5 | 74.04 | 70.44 | 73.36 |
+| citeseer | 10 | D2a_1000__retuned | 5 | 74.40 | 69.98 | 73.40 |
+| citeseer | 10 | D4_confidence__fixed | 5 | 72.48 | 69.86 | 73.38 |
+| citeseer | 10 | D4_confidence__retuned | 5 | 73.14 | 68.40 | 73.34 |
+| pubmed | 3 | B0 | 5 | 90.16 | 76.32 | 86.84 |
+| pubmed | 3 | D1_25__fixed | 5 | 89.90 | 76.00 | 86.86 |
+| pubmed | 3 | D1_25__retuned | 5 | 89.78 | 75.06 | 86.88 |
+| pubmed | 3 | D2a_1000__fixed | 5 | 90.34 | 76.76 | 86.82 |
+| pubmed | 3 | D2a_1000__retuned | 5 | 90.32 | 76.82 | 86.86 |
+| pubmed | 3 | D4_confidence__fixed | 5 | 89.82 | 76.68 | 86.64 |
+| pubmed | 3 | D4_confidence__retuned | 5 | 90.72 | 91.00 | 85.00 |
+| pubmed | 5 | B0 | 5 | 90.92 | 90.76 | 88.48 |
+| pubmed | 5 | D1_25__fixed | 5 | 90.78 | 90.10 | 87.46 |
+| pubmed | 5 | D1_25__retuned | 5 | 90.52 | 89.74 | 87.94 |
+| pubmed | 5 | D2a_1000__fixed | 5 | 90.34 | 89.78 | 88.40 |
+| pubmed | 5 | D2a_1000__retuned | 5 | 90.30 | 88.92 | 88.20 |
+| pubmed | 5 | D4_confidence__fixed | 5 | 89.26 | 58.86 | 88.66 |
+| pubmed | 5 | D4_confidence__retuned | 5 | 90.28 | 88.42 | 88.54 |
+| pubmed | 10 | B0 | 5 | 91.00 | 90.94 | 88.58 |
+| pubmed | 10 | D1_25__fixed | 5 | 90.50 | 76.06 | 87.88 |
+| pubmed | 10 | D1_25__retuned | 5 | 90.78 | 90.28 | 88.38 |
+| pubmed | 10 | D2a_1000__fixed | 5 | 90.62 | 76.04 | 88.46 |
+| pubmed | 10 | D2a_1000__retuned | 5 | 90.78 | 90.48 | 88.48 |
+| pubmed | 10 | D4_confidence__fixed | 5 | 90.26 | 75.24 | 88.14 |
+| pubmed | 10 | D4_confidence__retuned | 5 | 90.66 | 89.82 | 88.28 |
+| arxiv | 3 | B0 | 5 | 57.56 | 51.44 | 52.48 |
+| arxiv | 3 | D1_25__fixed | 5 | 57.26 | 49.48 | 52.46 |
+| arxiv | 3 | D1_25__retuned | 5 | 57.16 | 50.04 | 52.46 |
+| arxiv | 3 | D2a_1000__fixed | 5 | 57.46 | 50.78 | 52.48 |
+| arxiv | 3 | D2a_1000__retuned | 5 | 57.30 | 51.84 | 52.48 |
+| arxiv | 3 | D4_confidence__fixed | 5 | 55.28 | 36.32 | 52.50 |
+| arxiv | 3 | D4_confidence__retuned | 5 | 56.18 | 42.34 | 52.52 |
+| arxiv | 5 | B0 | 5 | 59.52 | 52.52 | 53.90 |
+| arxiv | 5 | D1_25__fixed | 5 | 59.60 | 54.84 | 53.84 |
+| arxiv | 5 | D1_25__retuned | 5 | 59.50 | 53.02 | 53.82 |
+| arxiv | 5 | D2a_1000__fixed | 5 | 58.82 | 49.30 | 53.84 |
+| arxiv | 5 | D2a_1000__retuned | 5 | 59.06 | 50.16 | 53.78 |
+| arxiv | 5 | D4_confidence__fixed | 5 | 59.02 | 48.22 | 53.88 |
+| arxiv | 5 | D4_confidence__retuned | 5 | 59.12 | 47.10 | 53.94 |
+| arxiv | 10 | B0 | 5 | 61.76 | 52.02 | 54.90 |
+| arxiv | 10 | D1_25__fixed | 5 | 60.96 | 49.94 | 54.92 |
+| arxiv | 10 | D1_25__retuned | 5 | 62.18 | 55.04 | 55.00 |
+| arxiv | 10 | D2a_1000__fixed | 5 | 61.18 | 44.62 | 54.92 |
+| arxiv | 10 | D2a_1000__retuned | 5 | 61.62 | 57.76 | 55.00 |
+| arxiv | 10 | D4_confidence__fixed | 5 | 60.80 | 40.92 | 54.92 |
+| arxiv | 10 | D4_confidence__retuned | 5 | 61.60 | 53.54 | 55.00 |
+| ogbn-products | 3 | B0 | 5 | 72.24 | 67.38 | 69.46 |
+| ogbn-products | 3 | D1_25__fixed | 5 | 72.12 | 63.48 | 69.48 |
+| ogbn-products | 3 | D1_25__retuned | 5 | 71.58 | 62.34 | 69.48 |
+| ogbn-products | 3 | D2a_1000__fixed | 5 | 71.74 | 66.38 | 69.46 |
+| ogbn-products | 3 | D2a_1000__retuned | 5 | 71.32 | 65.80 | 69.44 |
+| ogbn-products | 3 | D4_confidence__fixed | 5 | 70.98 | 54.42 | 69.48 |
+| ogbn-products | 3 | D4_confidence__retuned | 5 | 69.88 | 50.24 | 69.32 |
+| ogbn-products | 5 | B0 | 5 | 72.18 | 56.34 | 70.06 |
+| ogbn-products | 5 | D1_25__fixed | 5 | 71.08 | 56.76 | 69.80 |
+| ogbn-products | 5 | D1_25__retuned | 5 | 71.78 | 61.82 | 70.16 |
+| ogbn-products | 5 | D2a_1000__fixed | 5 | 72.02 | 59.88 | 70.04 |
+| ogbn-products | 5 | D2a_1000__retuned | 5 | 72.36 | 63.48 | 70.04 |
+| ogbn-products | 5 | D4_confidence__fixed | 5 | 70.40 | 47.74 | 70.04 |
+| ogbn-products | 5 | D4_confidence__retuned | 5 | 70.18 | 53.56 | 70.14 |
+| ogbn-products | 10 | B0 | 5 | 73.56 | 67.74 | 71.32 |
+| ogbn-products | 10 | D1_25__fixed | 5 | 72.18 | 63.92 | 71.18 |
+| ogbn-products | 10 | D1_25__retuned | 5 | 73.20 | 58.34 | 71.16 |
+| ogbn-products | 10 | D2a_1000__fixed | 5 | 72.48 | 63.50 | 71.40 |
+| ogbn-products | 10 | D2a_1000__retuned | 5 | 73.58 | 68.06 | 71.22 |
+| ogbn-products | 10 | D4_confidence__fixed | 5 | 72.14 | 64.40 | 71.02 |
+| ogbn-products | 10 | D4_confidence__retuned | 5 | 73.18 | 66.96 | 71.38 |
+
+逐seed结果及alpha/beta见per_cell.csv；525份完整输入路径、哈希及配置见RESULTS.json。datasets内CSV包含每节点三种预测及改变/改对/改错。
+
+[原3×2完整报告](../joint-factorial-3x2-20261029/INTERPRETATION.md)；[分析代码](../../experiments/stage0_20261029/components_factorial.py)。原模型、数据划分、Router及已有报告均未修改。
