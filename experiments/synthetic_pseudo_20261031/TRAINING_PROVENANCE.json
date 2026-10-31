@@ -1,0 +1,12 @@
+{
+  "source": "src/eargtc/joint_explore/joint_purf_v10_v1/training.py",
+  "source_sha256": "4fbdbad371c414c857db821c180145fc0f38e1e4a8703a5a1f65c4eb33039deb",
+  "changes": [
+    "absolute import of unchanged UnifiedRepair",
+    "split_seed and training_seed_id separated; effective RNG seed=split_seed+1000003*training_seed_id; id0 exactly legacy",
+    "last500 mode disables early stopping and selects final state, while retaining best validation checkpoint",
+    "new seed/mode metadata only; loss/optimizer/batch logic unchanged"
+  ],
+  "legacy_pool_semantics": "original B0 pools retained for exact replay",
+  "synthetic_pool_semantics": "user-defined chosen GNN => teach_g; chosen LLM => teach_l; two half-weight batches unchanged"
+}
